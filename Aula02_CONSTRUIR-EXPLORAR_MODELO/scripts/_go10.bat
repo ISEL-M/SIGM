@@ -1,0 +1,1 @@
+sh _go.sh 10_script_ELIMINAR_DADOS.txt

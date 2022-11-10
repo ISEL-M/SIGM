@@ -1,0 +1,116 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+
+--=============
+-- Liga��o � BD
+--=============
+\set dataBase my_gis
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+-- mais informa��o sobre "client_encoding" em:
+-- http://www.postgresql.org/docs/9.4/static/multibyte.html
+\encoding WIN1250
+;
+
+
+--=========================================
+-- Quais os infant�rios de cada freguesia ?
+--=========================================
+-- Atencao: a vista deve projectar o atributo "oid" ou uma chave prim�ria
+--          do tipo "integer" de modo a ser apresentada no QGis
+--=======================================================================
+
+--CREATE VIEW v_inf_frg( oid, nome_infantario, nome_freguesia_residencia, nome_freguesia_infantario, g_local_cliente )
+
+
+
+DROP VIEW v_cli_freg_inf_dist cascade
+;
+DROP VIEW v_inf_freg_aux cascade
+;
+DROP VIEW v_inf_freg cascade
+;
+
+CREATE VIEW v_cli_freg_inf_dist (cli_code, freg_cli, inf, distance )
+AS
+SELECT c.code, f.name, i.name, st_distance(c.local, i.local)
+FROM client as c, infantario as i, freguesia as f
+where st_within(c.local, f.region)
+;
+
+--SELECT *
+--FROM v_cli_freg_inf_dist
+--order by cli_code
+;
+
+-------------------------------------------------------
+-------------------------------------------------------
+
+CREATE VIEW v_cli_inf_min_dist ( cli_code, min_dist )
+AS
+SELECT cli_code, min(distance)
+FROM v_cli_freg_inf_dist
+group by cli_code
+;
+
+
+--SELECT *
+--FROM v_cli_inf_min_dist
+;
+
+-------------------------------------------------------
+-------------------------------------------------------
+
+CREATE VIEW v_inf_freg_aux ( inf, freg )
+AS
+SELECT i.name, f.name
+FROM freguesia as f, infantario as i
+where st_within(i.local, f.region)
+;
+
+
+SELECT *
+FROM v_inf_freg_aux
+;
+
+-------------------------------------------------------
+-------------------------------------------------------
+
+CREATE VIEW v_cli_inf_sel_min_dist ( cli_code, cli_freg, inf, dist )
+AS
+SELECT a.*
+FROM v_cli_freg_inf_dist as a, v_cli_inf_min_dist as m
+where a.cli_code=m.cli_code and a.distance = m.min_dist
+order by cli_code
+;
+
+
+SELECT *
+FROM v_cli_inf_sel_min_dist
+;
+
+-------------------------------------------------------
+-------------------------------------------------------
+
+CREATE VIEW v_inf_freg ( cli_code, cli_freg, inf, dist )
+AS
+SELECT min.*
+FROM v_cli_inf_sel_min_dist as min, v_inf_freg_aux as loc
+where min.cli_freg = loc.freg and min.inf !=loc.inf
+;
+
+
+SELECT *
+FROM v_inf_freg
+;

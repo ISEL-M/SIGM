@@ -1,0 +1,87 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis_gps
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+--------------------------------
+-- Criar o Esquema Relacional
+--------------------------------
+-- DROP VIEW IF EXISTS V_
+
+DROP TABLE IF EXISTS gps_ponto;
+DROP TABLE IF EXISTS terreno;
+DROP TABLE IF EXISTS tipo_terreno;
+---------------------------------
+
+
+
+---------------------------------
+-- TIPO_TERRENO
+---------------------------------
+CREATE TABLE tipo_terreno (
+    nome varchar not null
+);
+
+alter table tipo_terreno add
+    constraint pk_tipo_terreno primary key (nome)
+;
+
+
+
+---------------------------------
+-- TERRENO
+---------------------------------
+CREATE TABLE terreno (
+    id int not null,
+    regiao geometry(POLYGON, 0)
+);
+
+alter table terreno add
+    tipo varchar not null
+;
+
+alter table terreno add
+    constraint pk_terreno primary key (id)
+;
+
+alter table terreno add
+    constraint fk_terreno_tipo foreign key (tipo) references tipo_terreno (nome)
+    on update restrict on delete restrict
+;
+
+
+---------------------------------
+-- GPS_PONTO
+---------------------------------
+CREATE TABLE gps_ponto (
+    indice int not null,
+    ponto geometry(POINT, 0)
+);
+
+alter table gps_ponto add
+    terreno int not null
+;
+
+alter table gps_ponto add
+    constraint pk_gps_ponto primary key (terreno, indice)
+;
+
+alter table gps_ponto add
+    constraint fk_terreno_tipe foreign key (terreno) references terreno (id)
+    on update restrict on delete restrict
+;
+

@@ -1,0 +1,1 @@
+sh _go.sh 03_script_SIG_ALTERAR_ESQUEMA_INFANTARIO.txt

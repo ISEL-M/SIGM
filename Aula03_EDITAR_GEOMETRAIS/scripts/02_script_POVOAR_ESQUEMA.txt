@@ -1,0 +1,139 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis_gps
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+
+-- Eliminar Dados (anteriores)
+--=============================
+DELETE FROM gps_ponto;
+DELETE FROM TERRENO;
+DELETE FROM TIPO_TERRENO;
+---------------------------------
+
+
+----------------------------
+-- Povoar Dados
+----------------------------
+-- TIPO_TERRENO
+----------------------------
+INSERT INTO tipo_terreno (nome) values
+    ('Lago'),
+    ('Floresta'),
+    ('Deserto'),
+    ('Baldio'),
+    ('Montanha'),
+    ('Pântano'),
+    ('Rio')
+;
+
+
+
+----------------------------
+-- TERRENO
+----------------------------
+INSERT INTO terreno( id, tipo ) values
+    (1, 'Lago'),
+    (2, 'Lago'),
+    (3, 'Floresta'),
+    (4, 'Pântano'),
+    (5, 'Rio')
+;
+
+
+----------------------------
+-- GPS_PONTO
+----------------------------
+--INSERT INTO gps_ponto();
+
+
+
+
+
+----------------------------
+-- GPS_PONTO
+----------------------------
+--================================================================================================
+-- >> IMPORTANTE:
+-- >> DESCOMEMNTAR A PROXIMA LINHA NA RESPOSTA A QUESTAO 3 DO GUIAO DA AULA PRATICA
+-- >> (o QuantumGIS apenas regista o layer se ele tiver pelo menos 1 geometria)
+--================================================================================================
+-- INSERT INTO public.gps_ponto VALUES (1, ST_MakePoint(0, 0), 1);
+
+
+
+
+--================================================================================================
+-- >> IMPORTANTE:
+-- >> AS PROXIMAS LINHAS SAO PARA COMPLETAR NA RESPOSTA AS QUESTOES 5 E 6 DO GUIAO DA AULA PRATICA
+--================================================================================================
+-- 1. Os pontos foram editados no QuantumGis e depois gravados no PostGis
+-- 2. Os INSERT foram gerado em:
+-- pgAdmin III \ Tools \ Backup \ com a configuracao:
+-- | File Options | Format: PLAIN'
+-- | Dump Options #1 | Only Data; Use Insert Commands
+-- INSERT INTO public.gps_ponto VALUES (1, '010100000000000000000000000000000000000000', 1);
+-- INSERT INTO public.gps_ponto VALUES (2, '0101000000F8638ED2ED2BD73FF0665C8B0435B53F', 1);
+-- INSERT INTO public.gps_ponto VALUES (3, '0101000000AA106DF8FC31E13F68F8FC3147E9D63F', 1);
+-- INSERT INTO public.gps_ponto VALUES (4, '01010000000CD186CF1F73D83F6C5F59BD4B1EE43F', 1);
+-- INSERT INTO public.gps_ponto VALUES (5, '010100000010069C712D12D03F2C7930E08C6BED3F', 1);
+-- INSERT INTO public.gps_ponto VALUES (6, '0101000000008A9DD8899D98BF84CF1F73946EEB3F', 1);
+-- INSERT INTO public.gps_ponto VALUES (7, '0101000000A06B91A0A642A4BF2EE08C6B91A0E23F', 1);
+-- INSERT INTO public.gps_ponto VALUES (8, '01010000003A4AB7AFACDED1BFBEE78F394AB7DF3F', 1);
+-- INSERT INTO public.gps_ponto VALUES (9, '0101000000F2F9638ED2EDDFBF980AD186CF1FE33F', 1);
+-- INSERT INTO public.gps_ponto VALUES (10, '0101000000C4E78F394AB7E5BF4EBA7D65F52ED93F', 1);
+-- INSERT INTO public.gps_ponto VALUES (11, '010100000090394AB7AFACE0BFA845829A0AD1C63F', 1);
+-- INSERT INTO public.gps_ponto VALUES (12, '0101000000685C8B043515CABFC81F73946E5FC93F', 1);
+-- INSERT INTO public.gps_ponto VALUES (13, '010100000014069C712D12D03FA0505321DAF0B9BF', 1);
+-- INSERT INTO public.gps_ponto VALUES (1, '010100000052E3A20EFAFBE4BFBCDB44751469DFBF', 2);
+-- INSERT INTO public.gps_ponto VALUES (2, '010100000078F391F2ED80F0BFF4F81A0E9856D9BF', 2);
+-- INSERT INTO public.gps_ponto VALUES (3, '010100000000BA1FD32DDFF2BFD60209DB65EDE4BF', 2);
+-- INSERT INTO public.gps_ponto VALUES (4, '0101000000F213903C17E8EBBF22EB273D5278E3BF', 2);
+-- INSERT INTO public.gps_ponto VALUES (5, '0101000000A0DC82219481E8BF70FE0F0908CFD1BF', 2);
+
+
+-- 1. Os pontos foram editados no QuantumGis e depois gravados no PostGis
+-- 2. Os INSERT foram gerado em:
+-- pgAdmin III \ Tools \ Query Tool \ com a interrogacao:
+-- SELECT ST_AsText(g_ponto) FROM gps_ponto;
+-- e depois executando essa interrogacao para um ficheiro (em Query \ Execute to file)
+-- por fim substituindo no ficheiro gerado POINT por ST_MakePoint
+-- INSERT INTO gps_ponto VALUES (1, 1,  ST_MakePoint(
+INSERT INTO gps_ponto (terreno, indice, ponto) VALUES
+    (1,1,ST_MakePoint(0, 0)),
+    (1,2,ST_MakePoint(0.362056213017751, 0.08284023668639)),
+    (1,3,ST_MakePoint(0.537352071005917, 0.357988165680473)),
+    (1,4,ST_MakePoint(0.382026627218935, 0.628698224852071)),
+    (1,5,ST_MakePoint(0.251109467455621, 0.919378698224852)),
+    (1,6,ST_MakePoint(-0.024038461538462, 0.857248520710059)),
+    (1,7,ST_MakePoint(-0.03957100591716, 0.582100591715976)),
+    (1,8,ST_MakePoint(-0.279215976331361, 0.495562130177514)),
+    (1,9,ST_MakePoint(-0.498890532544379, 0.597633136094674)),
+    (1,10,ST_MakePoint(-0.67862426035503, 0.393491124260355)),
+    (1,11,ST_MakePoint(-0.521079881656805, 0.178254437869822)),
+    (1,12,ST_MakePoint(-0.203772189349112, 0.198224852071006)),
+    (1,13,ST_MakePoint(0.251109467455622, -0.101331360946747)),
+    (2,1,ST_MakePoint(-0.655758884989249, -0.490788568993078)),
+    (2,2,ST_MakePoint(-1.031476924457108, -0.395910276198165)),
+    (2,3,ST_MakePoint(-1.179487061217174, -0.65397923260033)),
+    (2,4,ST_MakePoint(-0.872081392561652, -0.608437652058772)),
+    (2,5,ST_MakePoint(-0.765817704631349, -0.278261193132471))
+;
+
+
+
+

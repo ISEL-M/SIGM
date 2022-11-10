@@ -1,0 +1,150 @@
+#############
+# Paulo Trigo
+#############
+
+
+
+
+.:: (-) ::.
+Todo software que precisa de instalar está, no "moodle", em "03_distribuicoes":
+- distribution_01_PostgreSQL.zip.txt
+- distribution_02_QGIS.zip
+
+
+No entanto nos pontos que se seguem está, para além de informação de instalação, indicação dos locais para "download”.
+
+Sugestão:
+- instalar todo o software numa máquina virtual.
+- o “Virtual Box” foi usado para construir uma máquina virtual Windows10 onde todo o software (aqui descrito) foi instalado e testado.
+
+
+-----//-----
+
+
+(1)
+.::Sistema de Gestão de Base de Dados "Relacional-Objecto" (SGBD-RO)::.
+
+Descarregar PostgreSQL em:
+https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+> escolhi as opções:
+- Version 10.14
+- Windows x86-32
+
+
+> Instalar executando:
+postgresql-10.10-1-windows.exe
+- instalei a versão 32bits; "Windows x86-32"
+- nesta versão é instalado um compilador de c++ que (no meu caso) demorou um pouco a iniciar
+
+
+ATENÇÃO:
+Guardar registo da informação sobre credenciais, porto e nomes de BD.
+
+> No final da instalação:
+- garantir que a seguinte opção NÃO está selecionada:
+[] Stack Builder may be used to download and install additional tools, ...
+(para que possa ir executar explicitamente o "Stack Builder")
+
+
+
+-----//-----
+
+
+
+(2)
+.::Activar a extensão do SGBD-RO para dados geo-referenciados::.
+NOTA: esta extensão é conhecida como "PostGIS"
+
+> Para adicionar extensões ao PostgreSQL, usa-se o "Application Stack Builder".
+(Start->PostgreSQL 10.10 -> Application Stack Builder)
+escolhendo depois:
+- PostgreSQL 10 on port 5432
+- <Next>
+- "Spatial Extensions" \ PostGIS 2.5 Bundle for PostgreSQL 10 (32 bit) v2.5.1 [eu instalei este]
+ou
+- "Spatial Extensions" \ PostGIS 2.4 Bundle for PostgreSQL 10 (32 bit) v2.4.4
+
+> Ao obter a mensagem:
+- "All the installation files have now been successfully downloaded"
+<Next>
+<I Agree>
+- verificar que está selecionado [PostGIS]
+- verificar que NÃO está selecionado [Create spatial database] 
+(pois vamos fazer isto posteriormente)
+
+
+> Ao instalar estabelece ligação ao servidor PostgreSQL 
+- portanto tem que fornecer as credenciais que definiu ao instalar o PostgreSQL
+
+> Responder <Yes> às questões relacionadas com dados "Raster"
+
+
+ATENÇÃO:
+Guardar registo da informação relativa a credenciais e nomes de BD.
+
+
+
+-----//-----
+
+
+
+(3)
+.::Visualizador de dados geo-referenciados::.
+-->> Quantum GIS (QGIS)
+
+> Descarregar Quantum GIS em:
+https://www.qgis.org/en/site/forusers/download.html
+- Download for Windows
+  \ Latest release (richest on features):
+  \ QGIS Standalone Installer Version 3.8 (32 bit)
+
+> Instalar executando:
+- QGIS-OSGeo4W-3.8.3-1-Setup-x86
+- o nome desta versão, 3.8, é "Zanzibar" ("The Zanzibar City (capital of Zanzibar Archipelago) was the location of our developer meeting before the international FOSS4G 2018 conference in Dar Es Salaam.").
+
+
+>> CURIOSIDADES sobre o nome de algumas versões anteriores:
+- a versão anterior, 3.2, chamava-se "Bonn" - "The city of Bonn was the location of our 16th developer meeting.".
+
+- a versão anterior, 2.18, chamava-se "Las Palmas" - "The city of Las Palmas de Gran Canaria was the location of our autumn 2015 developer meeting".
+
+- a versão anterior, 2.14, chamava-se "Essen" - "Essen was the host city to our developer meet ups in October 2012 and 2014"
+
+- a versão anterior, 2.4, chamava-se "Chugiak" - "in honour of the project founder Gary Sherman who lives in Chugiak, Alaska"
+
+- a versão anterior, 1.8, chamava-se "Lisboa" - "after the QGIS developer meeting organized (by Faunalia) in Lisbon, Portugal in April 2011"
+
+
+Na janela "Choose Components" pode escolher os "data set" indicados abaixo (e apresentados para escolha na instalação), no entanto isso resulta num um processo de instalação demasiado demorado (precisa fazer "download" desses "dataset") e que poderá sempre executar após instalação:
+- North Carolina Data Set
+- South Dakota (Spearfish)
+- Alaska Data Set
+
+
+
+-----//-----
+
+
+
+(4)
+.::Visualizador de dados geo-referenciados::.
+-->> UDig
+// alternativa ao Quantum GIS
+
+Caso pretenda experimentar o uDgi, descarregar em:
+http://udig.refractions.net/download/
+
+
+
+-----//-----
+Nota:
+- Vantagem do Quantum GIS (em relação ao uDig 1.2.0)
+  está mais estável do que o uDig na apresentação de "layers" quando
+  existem diversos atributos geométricos na mesma tabela
+
+- Desvantagem do Quantum GIS (em relação ao uDig 1.2.0)
+  tem como limitação o facto de exigir que as tabelas do PostGIS tenham
+  como chave um atributo do tipo "int" ou um OID (Object ID) do PostGIS.
+  Ou seja, se a tabela a visualizar não tiver um "int" como chave nem tiver definido o OID o Quantum GIS não consegue apresentá-la
+  (na aula prática será visto como criar uma tabela que inclua os OID).
+-----//-----

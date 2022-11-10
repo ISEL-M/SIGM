@@ -1,0 +1,104 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+--=============
+-- Ligacao a BD
+--=============
+\set dataBase my_gis_aug_real
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+-----------------------------
+-----------------------------
+-- Simulacao de trajectorias:
+-- [1] Iniciacao dos dados
+-----------------------------
+-----------------------------
+DELETE FROM cinematica_hist;
+DELETE FROM cinematica;
+
+--________________________________________________
+-- Inserir dados para caracterizacao da cinematica
+--________________________________________________
+INSERT INTO cinematica( id, g_posicao, orientacao, velocidade, aceleracao ) VALUES(
+1,
+ST_GeomFromText( 'POINT( 5 6 )', 3763 ),
+0.0,
+ROW( ROW( 1, 1 ), 1.3 ),
+ROW( ROW( 0.5, 3 ), 1.0 )
+);
+
+INSERT INTO cinematica( id, g_posicao, orientacao, velocidade, aceleracao ) VALUES(
+2,
+ST_GeomFromText( 'POINT( 2 3 )', 3763 ),
+0.0,
+ROW( ROW( 1, 1 ), 0.3 ),
+ROW( ROW( 2, 0.5 ), 1.0 )
+);
+
+
+
+--------------------------------------------
+--------------------------------------------
+-- Simulacao de trajectorias:
+-- [2] Executar as linhas (A) e (B) em ciclo
+--------------------------------------------
+--------------------------------------------
+-- (A)
+INSERT INTO cinematica_hist
+SELECT nextval('cinematica_hist_id_hist_seq'), id, orientacao, velocidade , aceleracao, g_posicao
+FROM cinematica;
+
+-- (B)
+UPDATE cinematica
+SET velocidade = novo_velocidade( velocidade, aceleracao, 1 );
+
+UPDATE cinematica
+SET g_posicao = novo_posicao( g_posicao, velocidade, 1 );
+
+UPDATE cinematica
+SET orientacao = novo_orientacao( orientacao, velocidade, 1 );
+--________________________________________________________________________________________________
+
+
+
+
+-- ==========================
+-- Separar os dois movimentos
+-- ==========================
+DROP VIEW IF EXISTS v_trajectoria_1;
+CREATE VIEW v_trajectoria_1 AS
+SELECT *
+FROM cinematica_hist
+WHERE id = 1;
+
+DROP VIEW IF EXISTS v_trajectoria_2;
+CREATE VIEW v_trajectoria_2 AS
+SELECT *
+FROM cinematica_hist
+WHERE id = 2;
+
+
+-- ========================================
+-- Separar as duas estruturas de cinematica
+-- ========================================
+DROP VIEW IF EXISTS v_cinematica_1;
+CREATE VIEW v_cinematica_1 AS
+SELECT *
+FROM cinematica
+WHERE id = 1;
+
+DROP VIEW IF EXISTS v_cinematica_2;
+CREATE VIEW v_cinematica_2 AS
+SELECT *
+FROM cinematica
+WHERE id = 2;
+

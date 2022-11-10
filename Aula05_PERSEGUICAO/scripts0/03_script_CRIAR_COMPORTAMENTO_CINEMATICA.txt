@@ -1,0 +1,132 @@
+----#############
+----# Paulo Trigo
+----#############
+--
+--
+----=============
+---- Ligacao a BD
+----=============
+\set dataBase my_gis_aug_real
+--;
+\set userName postgres
+--;
+\connect :dataBase :userName
+--;
+----==========================
+----==========================
+--
+--
+--
+------------------------------------------------------------
+------------------------------------------------------------
+---- Obter valores de 'cinematica' para um instante do tempo
+------------------------------------------------------------
+------------------------------------------------------------
+DROP VIEW IF EXISTS v_novo_cinematica;
+DROP FUNCTION IF EXISTS novo_posicao( geometry, t_velocidade, real );
+DROP FUNCTION IF EXISTS novo_orientacao( real, t_velocidade, real );
+DROP FUNCTION IF EXISTS novo_velocidade( t_velocidade, t_aceleracao, real );
+
+
+
+--____________________________________________________
+-- Obter a nova posicao do objecto no instante 'tempo'
+-- Formulacao:
+-- return g_posicao + velocidade.linear * tempo
+--____________________________________________________
+CREATE OR REPLACE FUNCTION novo_posicao( g_posicao geometry, velocidade t_velocidade, tempo real )
+RETURNS geometry
+AS $$
+SELECT 
+ST_Translate( $1,
+              (($2).linear * $3 ).x,
+              (($2).linear * $3 ).y )
+$$ LANGUAGE 'sql';
+
+
+---- TESTE
+---- tempo=2
+----________
+SELECT ST_Astext( novo_posicao( g_posicao, velocidade, 2 ) )
+FROM cinematica;
+-- resultado:
+-- POINT(7, 8)
+-- POINT(4, 5)
+
+
+
+----_______________________________________________________
+---- Obter a nova orientacao do objecto no instante 'tempo'
+---- Formulacao:
+---- return orientacao + velocidade.angular * tempo
+----_______________________________________________________
+CREATE OR REPLACE FUNCTION novo_orientacao( orientacao real, velocidade t_velocidade, tempo real )
+RETURNS real
+AS $$
+BEGIN
+    return orientacao + velocidade.angular * tempo;
+END
+$$ LANGUAGE plpgsql;
+
+
+-- TESTE
+-- tempo=2
+----_______________________________________________________
+SELECT novo_orientacao( orientacao, velocidade, 2 )
+FROM cinematica;
+-- resultado:
+-- 2.6
+-- 0.6
+
+
+
+----_______________________________________________________
+---- Obter a nova velocidade do objecto no instante 'tempo'
+---- Formulacao:
+---- velocidade.linear + aceleracao.linear * tempo
+---- velocidade.angular + aceleracao.angular * tempo
+----_______________________________________________________
+CREATE OR REPLACE FUNCTION novo_velocidade( velocidade t_velocidade, aceleracao t_aceleracao, tempo real )
+RETURNS t_velocidade
+AS $$
+DECLARE
+    linear t_vector;
+    angular real;
+BEGIN
+    linear = velocidade.linear + aceleracao.linear * tempo;
+    angular = velocidade.angular + aceleracao.angular * tempo;
+    return (linear, angular);
+END
+$$ LANGUAGE plpgsql;
+
+
+-- TESTE
+-- tempo=2
+--________
+SELECT novo_velocidade( velocidade, aceleracao, 2 )
+FROM cinematica;
+-- resultado:
+-- ("(2, 7)", 3.3)
+-- ("(5, 2)", 2.3)
+
+
+
+--------------------------------------------------------------
+--------------------------------------------------------------
+-- Vista da 'cinematica' para um instante do tempo (e.g., 2)
+--------------------------------------------------------------
+--------------------------------------------------------------
+
+DROP VIEW IF EXISTS v_novo_cinematica;
+CREATE VIEW v_novo_cinematica AS
+SELECT c.id AS id,
+       novo_orientacao( c.orientacao, c.velocidade, 2 ) AS orientacao,
+       novo_velocidade( c.velocidade, c.aceleracao, 2 ) AS velocidade,
+       c.aceleracao,
+       ST_Astext( novo_posicao( c.g_posicao, c.velocidade, 2 ) ) AS posicao_texto,
+       novo_posicao( c.g_posicao, c.velocidade, 2 ) AS posicao
+FROM cinematica c;
+
+SELECT * FROM v_novo_cinematica;
+-- resolucao: confrontar com os dados obtidos isoladamente por cada funcao (acima)
+--=================================================================================

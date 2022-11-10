@@ -1,0 +1,50 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+--=============
+-- Liga��o � BD
+--=============
+\set dataBase my_gis_aug_real
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+-----------------------------------------------------
+-----------------------------------------------------
+-- Criar Estrutura de suporte 'a nocao de perseguicao
+-----------------------------------------------------
+-----------------------------------------------------
+DROP TABLE IF EXISTS pp CASCADE;
+----------------------------------------------------
+
+
+
+----------------------------------------------------
+
+-- Suporte 'a nocao de perseguicao
+CREATE TABLE pp(
+-- <COMPLETAR>
+);
+-- <COMPLETAR>
+
+     
+
+---------------------------------------------------
+---------------------------------------------------
+-- Inserir dados para caracterizacao da perseguicao
+---------------------------------------------------
+---------------------------------------------------
+-- Como exemplo indicar que o ojecto 1 persegue o 2
+INSERT INTO pp( id_perseguidor, id_alvo )
+VALUES( 1, 2 );
+
+SELECT *
+FROM pp;
+

@@ -1,0 +1,52 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+--==============================
+-- Eliminar o Esquema Relacional
+--==============================
+ALTER TABLE <ER>
+DROP CONSTRAINT fk1_<ER>
+;
+
+
+ALTER TABLE <ER>
+DROP CONSTRAINT fk1_<ER>
+;
+
+
+ALTER TABLE <ER>
+DROP CONSTRAINT fk1_<ER>
+;
+
+
+DROP TABLE <ER>
+;
+
+
+DROP TABLE <ER>
+;
+
+
+DROP TABLE <ER>
+;
+
+
+DROP TABLE <ER>
+;

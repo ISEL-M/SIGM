@@ -1,0 +1,117 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis_gps
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+
+--------------------------------
+DROP TABLE IF EXISTS T_PONTO_FRONTEIRA;
+DROP VIEW IF EXISTS V_POLIGONO;
+DROP VIEW IF EXISTS V_LINHA_EXTREMO_COINCIDENTE;
+DROP VIEW IF EXISTS V_LINHA_CONTORNO;
+--------------------------------
+
+
+
+----------------------------
+-- VIEW V_LINHA_CONTORNO
+-- (a partir de GPS_PONTO)
+----------------------------
+CREATE VIEW V_LINHA_CONTORNO( id_terreno, g_linha ) AS
+SELECT
+    gps.terreno, ST_MakeLine(gps.ponto ORDER BY gps.indice)
+FROM
+    gps_ponto AS gps
+GROUP BY
+    gps.terreno
+;
+
+-- SELECT id_terreno, ST_AsText(g_linha) FROM V_LINHA_CONTORNO;
+
+
+----------------------------
+-- TAUX_LINHA_CONTORNO
+-- (apenas para usar apresentar no QGIS)
+----------------------------
+--DROP TABLE IF EXISTS TAUX_LINHA_CONTORNO;
+--CREATE TABLE TAUX_LINHA_CONTORNO ( id SERIAL PRIMARY KEY );
+--SELECT AddGeometryColumn
+--('', 'taux_linha_contorno', 'g_linha', 0, 'LINESTRING', 2 );
+
+--INSERT INTO TAUX_LINHA_CONTORNO( g_linha )
+--SELECT g_linha
+--FROM V_LINHA_CONTORNO;
+
+
+
+----------------------------
+-- VIEW V_LINHA_EXTREMO_COINCIDENTE
+-- (gerar extremidades coincidentes)
+----------------------------
+CREATE VIEW V_LINHA_EXTREMO_COINCIDENTE( id_terreno, g_linha ) AS
+SELECT id_terreno, ST_UnaryUnion( g_linha ) FROM V_LINHA_CONTORNO;
+
+-- SELECT id_terreno, ST_AsText( g_linha ) FROM V_LINHA_EXTREMO_COINCIDENTE;
+
+
+
+----------------------------
+-- VIEW V_POLIGONO
+----------------------------
+CREATE VIEW V_POLIGONO( id_terreno, g_poligono ) AS
+SELECT id_terreno, ST_BuildArea( g_linha ) FROM V_LINHA_EXTREMO_COINCIDENTE;
+
+-- SELECT id_terreno, ST_AsText( g_poligono ) FROM V_POLIGONO;
+
+
+
+--SELECT id_terreno, ST_AsText( g_poligono ) AS g_poligono
+--FROM V_POLIGONO;
+
+
+
+----------------------------
+-- T_LINHA_EXTREMO_COINCIDENTE
+-- (criar tabela para visualizar no QGIS)
+----------------------------
+CREATE TABLE T_PONTO_FRONTEIRA( id SERIAL PRIMARY KEY );
+SELECT AddGeometryColumn( '', 't_ponto_fronteira', 'g_multi_ponto', 0, 'MULTIPOINT', 2 );
+
+--SELECT ST_GeometryN( g_linha,
+--                     generate_series( 1, ST_NumGeometries( g_linha ) ) ) AS g_linha
+--FROM V_LINHA_EXTREMO_COINCIDENTE;
+
+--SELECT
+--( CASE WHEN x % 2 = 0
+--  THEN 'PAR'
+--  ELSE 'IMPAR'
+--  END )
+--FROM generate_series( 1, 10 ) AS x
+
+
+DELETE FROM T_PONTO_FRONTEIRA;
+INSERT INTO T_PONTO_FRONTEIRA( g_multi_ponto )
+SELECT
+    ( CASE WHEN not ST_IsEmpty( ST_Boundary( t.g_linha ) ) THEN ST_Boundary( t.g_linha ) END )
+FROM
+    ( SELECT
+        ST_GeometryN( g_linha, generate_series( 1, ST_NumGeometries( g_linha ) ) ) AS g_linha
+      FROM
+        V_LINHA_EXTREMO_COINCIDENTE ) as t
+;
+
+SELECT id, ST_AsText(g_multi_ponto) FROM T_PONTO_FRONTEIRA;

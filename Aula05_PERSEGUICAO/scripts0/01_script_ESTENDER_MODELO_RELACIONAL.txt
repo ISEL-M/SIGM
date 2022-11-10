@@ -1,0 +1,240 @@
+----#############
+----# Paulo Trigo
+----#############
+
+
+----=============
+---- Ligacao a BD
+----=============
+\set dataBase my_gis_aug_real
+--;
+\set userName postgres
+--;
+\connect :dataBase :userName
+--;
+----==========================
+----==========================
+
+
+
+------------------------------------------------------
+------------------------------------------------------
+---- Estender o Modelo Relacional com Novas Estruturas
+------------------------------------------------------
+------------------------------------------------------
+DROP TYPE IF EXISTS t_velocidade;
+DROP TYPE IF EXISTS t_aceleracao;
+DROP OPERATOR IF EXISTS *( t_vector, real );
+DROP OPERATOR IF EXISTS *( real, t_vector );
+DROP OPERATOR IF EXISTS +( t_vector, t_vector );
+DROP FUNCTION IF EXISTS produto_vector_por_escalar_PLGSQL( t_vector, real );
+DROP FUNCTION IF EXISTS soma_vector_vector_PLPGSQL( t_vector, t_vector );
+DROP FUNCTION IF EXISTS normalizar_PLPGSQL( t_vector );
+DROP TYPE IF EXISTS t_vector;
+------------------------------------------------------
+
+CREATE TYPE t_vector AS (
+    x real,
+    y real
+);
+
+---- TESTE
+----______
+SELECT cast( (3, 4) AS t_vector ) AS v;
+SELECT (3, 4)::t_vector AS v;
+
+SELECT cast( (3.33, 4.44) AS t_vector ) AS v;
+SELECT (3.33, 4.44)::t_vector AS v;
+
+------------------------------------------------------
+
+CREATE TYPE t_velocidade AS (
+    linear t_vector,
+    angular real
+);
+
+---- TESTE
+----______
+SELECT cast( ( cast( (3, 4) AS t_vector ), 10.09 ) AS t_velocidade ) AS v;
+SELECT ( (3, 4)::t_vector, 10.09 )::t_velocidade AS v;
+
+------------------------------------------------------
+
+CREATE TYPE t_aceleracao AS (
+    linear t_vector,
+    angular real
+);
+
+---- TESTE
+----______
+SELECT cast( ( cast( (3, 4) AS t_vector ), 10.09 ) AS t_aceleracao ) AS v;
+SELECT ( (3, 4)::t_vector, 10.09 )::t_aceleracao AS v;
+
+
+
+-----------------------------------------------------
+-----------------------------------------------------
+---- Estender o Modelo Relacional com Novas Funcoes
+-----------------------------------------------------
+-----------------------------------------------------
+---- Para usar funcoes escritas em Python
+---- Atencao: precisa de ter instalado o Python 3.x.x
+---- (os testes foram realizados com versao Python 3.2.2)
+---- Note que a variavel PATH do ambiente do Windows
+---- tem que conter o caminho para o execut�vel "python"
+-----------------------------------------------------
+
+----____________________________________
+---- Produto de um vector por um escalar
+----____________________________________
+--CREATE OR REPLACE FUNCTION produto_vector_por_escalar( vec t_vector, v real )
+--RETURNS t_vector
+--AS $$
+--new_x = vec[ "x" ] * float( v )
+--new_y = vec[ "y" ] * float( v )
+--return { "x": new_x, "y": new_y }
+--$$ LANGUAGE plpython3u;
+
+
+
+-----------------------------------------------------
+---- Caso n�o consiga usar as fun��es em Python
+---- ent�o pode implementar usando o "PLGSQL"
+-----------------------------------------------------
+CREATE OR REPLACE FUNCTION produto_vector_por_escalar_PLGSQL( vec t_vector, v real )
+RETURNS t_vector
+AS $$
+DECLARE
+    new_x real;
+    new_y real;
+BEGIN
+    new_x := vec.x * v;
+    new_y := vec.y * v;
+    RETURN (new_x, new_y);
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+-----------------------------------------------------
+---- Defini��o do Operador
+-----------------------------------------------------
+CREATE OPERATOR * (
+    leftarg = t_vector,
+    rightarg = real,
+    procedure = produto_vector_por_escalar_PLGSQL,
+    commutator = *
+);
+
+
+---- TESTE
+----______
+SELECT (3, 4) * 5 AS v;
+---- resultado: v = (15, 20)
+
+SELECT (3, 4) * 5 AS v1, (3.5, 4.9) * 5.1 AS v2;
+---- resultado: v1 = (15, 20); v2 = (17.85, 24.99)
+
+
+
+
+----______________________
+---- Soma de dois vectores
+----______________________
+--CREATE OR REPLACE FUNCTION soma_vector_vector( vec_a t_vector, vec_b t_vector )
+--RETURNS t_vector
+--AS $$
+---- <COMPLETAR>
+--$$ LANGUAGE plpython3u;
+
+
+
+-----------------------------------------------------
+---- Caso n�o consiga usar as fun��es em Python
+---- ent�o implementa usando o "PLPGSQL"
+-----------------------------------------------------
+CREATE OR REPLACE FUNCTION soma_vector_vector_PLPGSQL( vec_a t_vector, vec_b t_vector )
+RETURNS t_vector
+AS $$
+DECLARE
+    new_x real;
+    new_y real;
+BEGIN
+    new_x = vec_a.x + vec_b.x;
+    new_y = vec_a.y + vec_b.y;
+
+    RETURN (new_x, new_y);
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+-----------------------------------------------------
+---- Defini��o do Operador
+-----------------------------------------------------
+CREATE OPERATOR + (
+    leftarg = t_vector,
+    rightarg = t_vector,
+    procedure = soma_vector_vector_PLPGSQL,
+    commutator = +  
+);
+
+
+---- TESTE
+----______
+SELECT cast( (3, 4) AS t_vector ) + cast( (3.5, 4.9) AS t_vector ) AS v;
+    -- resultado: v = (6.5, 8.9)
+
+SELECT (3, 4) + (3.5, 4.9) * 5 AS v1, ( cast( (3, 4) AS t_vector ) + cast( (3.5, 4.9) AS t_vector ) ) * 5 AS v2;
+    -- resultado: v1 = (20.5, 28.5); v2 = (32.5, 44.5)
+
+
+
+----__________________
+---- Normalizar vector
+----__________________
+---- normalizar: dividir cada componente pela norma
+---- norma: raiz duadrada da soma dos quadrados de cada componente (x**2 e' x ao quadrado)
+--CREATE OR REPLACE FUNCTION normalizar( vec t_vector )
+--RETURNS t_vector
+--AS $$
+--from math import sqrt
+
+---- <COMPLETAR>
+--$$ LANGUAGE plpython3u;
+
+
+
+
+-----------------------------------------------------
+---- Caso n�o consiga usar as fun��es em Python
+---- ent�o implementa usando o "PLPGSQL"
+-----------------------------------------------------
+CREATE OR REPLACE FUNCTION normalizar_PLPGSQL( vec t_vector )
+RETURNS t_vector
+AS $$
+DECLARE
+    norma real;
+    new_x real;
+    new_y real;
+BEGIN
+    norma = sqrt(vec.x^2 + vec.y^2);
+    new_x = vec.x / norma;
+    new_y = vec.y / norma;
+    RETURN (new_x, new_y);
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+---- TESTE
+----______
+SELECT normalizar_PLPGSQL( (3, 4) ) AS v;
+---- resultado: v = (0.6, 0.8)
+
+SELECT normalizar_PLPGSQL( (3, 4) + (3.5, 4.9) * 5 ) AS v1,
+       normalizar_PLPGSQL( ( (3, 4)::t_vector + (3.5, 4.9)::t_vector ) * 5 ) AS v2;
+---- resultado: v1 = (0.5832929, 0.811894); v2 = (0.589789, 0.807557)
+----=================================================================================
+

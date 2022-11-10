@@ -1,0 +1,44 @@
+--#############
+--# Paulo Trigo
+--#############
+
+DELETE FROM gps_ponto;
+
+
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (1, 1,  ST_MakePoint(-1.21383647798742, 0.534591194968554) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (2, 1,  ST_MakePoint(-1.05450733752621, 0.59748427672956) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (3, 1,  ST_MakePoint(-0.920335429769392, 0.547169811320755) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (4, 1,  ST_MakePoint(-0.836477987421384, 0.467505241090147) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (5, 1,  ST_MakePoint(-0.761006289308176, 0.383647798742138) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (6, 1,  ST_MakePoint(-0.731656184486373, 0.287211740041929) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (7, 1,  ST_MakePoint(-0.807127882599581, 0.194968553459119) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (8, 1,  ST_MakePoint(-0.890985324947589, 0.161425576519916) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (9, 1,  ST_MakePoint(-0.979035639412998, 0.165618448637317) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (10, 1, ST_MakePoint(-1.05450733752621, 0.174004192872117) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (11, 1, ST_MakePoint(-1.13836477987421, 0.174004192872117) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (12, 1, ST_MakePoint(-1.21383647798742, 0.211740041928721) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (13, 1, ST_MakePoint(-1.24737945492662, 0.295597484276729) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (14, 1, ST_MakePoint(-1.20964360587002, 0.371069182389937) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (15, 1, ST_MakePoint(-1.16352201257862, 0.446540880503145) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (16, 1, ST_MakePoint(-1.12578616352201, 0.513626834381551) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (17, 1, ST_MakePoint(-1.13417190775681, 0.631027253668763) );
+
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (1, 2,  ST_MakePoint(-0.733881256233333, 0.194206509128656) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (2, 2,  ST_MakePoint(-0.68217947935112, 0.242078524760334) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (3, 2,  ST_MakePoint(-0.618988418717304, 0.226759479758197) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (4, 2,  ST_MakePoint(-0.576861044961427, 0.167398180374916) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (5, 2,  ST_MakePoint(-0.599839612464633, 0.102292239115833) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (6, 2,  ST_MakePoint(-0.657286031222647, 0.0678243878610244) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (7, 2,  ST_MakePoint(-0.728136614357531, 0.0716541491115587) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (8, 2,  ST_MakePoint(-0.766434226862874, 0.115696403492703) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (9, 2,  ST_MakePoint(-0.730051494982798, 0.155908896623313) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (10, 2, ST_MakePoint(-0.691753882477455, 0.205695792880259) );
+INSERT INTO gps_ponto (indice, terreno, ponto) VALUES (11, 2, ST_MakePoint(-0.640052105595243, 0.259312450387739) );
+--
+
+
+
+
+
+
+

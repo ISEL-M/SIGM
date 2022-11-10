@@ -1,0 +1,1 @@
+sh _go.sh 01_script_CRIAR_ESQUEMA_INFANTARIO.txt

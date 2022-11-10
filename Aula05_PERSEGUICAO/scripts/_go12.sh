@@ -1,0 +1,1 @@
+sh _go.sh 12_script_SIMULAR_PERSEGUICAO.txt

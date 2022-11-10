@@ -1,0 +1,61 @@
+#############
+# Paulo Trigo
+#############
+
+# Usar o psql:
+# \Start\PostgreSQL\10\SQL Shell (psql)
+# ATENÇÃO escolher a base de dados "my_gis", i.e.: "Database [postgres]: my_gis
+
+
+#---//---
+
+
+# criar tabela (sem estrutura complexa)
+CREATE TABLE gt1 ( ID int4 PRIMARY KEY, NOME varchar(20) );
+
+# adcicionar estrutura complexa (LINESTRING) 'a tabela anterior
+# AddGeometryColumn(<schema_name>, <table_name>, <column_name>, <srid>, <type>, <dimension>)
+SELECT AddGeometryColumn('', 'gt1', 'gc1', 0, 'LINESTRING', 2);
+
+
+# inserir uma instância na estrutura "linestring"
+INSERT INTO gt1(ID, NOME, gc1) VALUES (1, 'Primeira Geo.', ST_GeomFromText('LINESTRING(2 3, 4 5, 6 5, 7 8)', 0) );
+
+
+#---//---
+
+
+# interrogar a base de dados
+SELECT id, nome, ST_AsText(gc1) AS geometria FROM gt1;
+
+
+# inserir outra instância na estrutura "linestring"
+INSERT INTO gt1(ID, NOME, gc1) VALUES (2, 'Segunda Geo.', ST_GeomFromText('LINESTRING(7 8, 8 2, 9 9, 10 10)', 0) );
+
+
+# actualizar a estrutura "linestring"
+UPDATE gt1 SET gc1 = ST_GeomFromText('LINESTRING(7 8, 8 7, 9 7, 7 8)' ) WHERE ID = 2;
+
+
+# eliminar a informação
+DELETE FROM gt1;
+
+
+#---//---
+
+
+# alterar a estrutura da tabela
+SELECT AddGeometryColumn('', 'gt1', 'gc2', 0, 'LINESTRING', 2);
+
+
+# interrogar a nova tabela
+SELECT id, nome, ST_AsText(gc1) AS geometria1, ST_AsText(gc2) AS geometria2 FROM gt1;
+
+
+# inserir dados na nova tabela
+INSERT INTO gt1(ID, NOME, gc1, gc2) VALUES (
+1, 'Com 2 Atributos Geo', 
+ST_GeomFromText('LINESTRING(2 3, 4 5, 6 5, 7 8)', 0), 
+ST_GeomFromText('LINESTRING(3 3, 5 5, 7 5, 8 8)', 0) );
+
+

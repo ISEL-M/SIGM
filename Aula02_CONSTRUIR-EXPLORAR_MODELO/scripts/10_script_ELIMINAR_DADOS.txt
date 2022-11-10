@@ -1,0 +1,39 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+
+
+--===============
+-- Eliminar Dados
+--===============
+-- DELETE FROM <ER>
+;
+
+-- DELETE FROM <ER>
+;
+
+-- DELETE FROM <ER>
+;
+
+-- DELETE FROM <ER>
+;
+
+-- DELETE FROM <ER>
+;

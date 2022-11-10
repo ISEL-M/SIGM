@@ -1,0 +1,1 @@
+sh _go.sh 02_script_POVOAR_ESQUEMA_INFANTARIO.txt

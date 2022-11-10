@@ -1,0 +1,1 @@
+sh _go.sh 05_script_SIG_INTERROGAR_ESQUEMA_INFANTARIO.txt

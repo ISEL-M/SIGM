@@ -1,0 +1,58 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+
+--=============
+-- Liga��o � BD
+--=============
+\set dataBase my_gis
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+-- NOTA: completar em <XX>
+--==========================
+drop table if exists freguesia;
+alter table client drop local;
+alter table infantario drop local;
+
+----------------------------------------------
+-- Criar Esquemas de Relacao
+-- (que derivem de Entidades e de Associacoes)
+----------------------------------------------
+create table freguesia (
+    name varchar,
+    region geometry(POLYGON, 0)
+);
+
+---------------------------------------------
+-- Criar Atributos que derivem de Associacoes
+---------------------------------------------
+
+alter table client add
+    local geometry(POINT, 0);
+
+alter table infantario add
+    local geometry(POINT, 0);
+
+
+-------------------------------------------------
+-- Criar as Restricoes de Integridade de Entidade
+-------------------------------------------------
+
+-------------------------------------------------
+-- Criar as Restricoes de Integridade Referencial
+-------------------------------------------------
+
+alter table freguesia add
+    constraint pk_freguesia primary key (name);
+
+
+-------------------------------
+-- Criar os Atributos Espaciais
+-------------------------------

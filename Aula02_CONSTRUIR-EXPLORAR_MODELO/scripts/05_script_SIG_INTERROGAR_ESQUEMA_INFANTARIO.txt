@@ -1,0 +1,110 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+
+--=============
+-- Liga��o � BD
+--=============
+\set dataBase my_gis
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+-- mais informa��o sobre "client_encoding" em:
+-- http://www.postgresql.org/docs/9.4/static/multibyte.html
+\encoding WIN1250
+;
+
+
+
+
+--===================
+-- Interrogar client
+--===================
+
+-- Ponto geografico de cada client
+
+SELECT code, st_astext(local) from client
+;
+
+
+-- cada uma das coordenadas (ordenadas e abcissa) do ponto geogr�fico de cada client
+
+SELECT code, st_x(local), st_y(local) from client
+;
+
+
+
+
+--=====================
+-- Interrogar FREGUESIA
+--=====================
+
+-- Espa�o geografico delimitado por cada freguesia
+
+SELECT name, st_astext(region) from freguesia
+;
+
+
+-- �rea ocupada por cada freguesia
+
+SELECT name, st_area(region) from freguesia
+;
+
+
+
+
+--==================================
+-- Interrogar INFANTARIO e FREGUESIA
+--==================================
+
+-- Infant�rios (name e geometria) de cada freguesia (name e geometria)
+-- considerando apenas opera��es espaciais
+
+SELECT 
+    INFANTARIO.name AS infantario, 
+    ST_ASText(INFANTARIO.local) as p_inf,
+
+    FREGUESIA.name AS freguesia, 
+    ST_ASText(FREGUESIA.region) as g_freg
+
+FROM INFANTARIO, FREGUESIA
+WHERE
+    ST_Contains(FREGUESIA.region, INFANTARIO.local)
+;
+
+
+-- Dist�ncia de cada client a cada infant�rio indicando o seu name pr�prio e de fam�lia
+select
+    client.first_name,
+    client.last_name,
+    infantario.name,
+    st_distance(client.local, infantario.local) as st_distance
+from
+    client, infantario
+;
+
+-- name do infant�rio e num �nico campo o name pr�prio e de fam�lia dos clientes
+-- que vivem a uma dist�ncia superior a 20 (unidades) de algum infant�rio
+
+select
+        infantario.name as nome_infantario,
+        concat(client.first_name, ' ', client.last_name) as nome_cliente
+from
+    client, infantario
+where
+    client.code = any
+    (select
+        client.code
+        from client, infantario
+        where st_distance(client.local, infantario.local) > 20
+    )
+;

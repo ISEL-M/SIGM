@@ -1,0 +1,98 @@
+--#############
+--# Paulo Trigo
+--# OCT.2016
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis
+;
+\set userName postgres
+;
+--___________________________________________________________
+-- \connect (or \c) [ dbname [ username ] [ host ] [ port ] ]
+-- (cf. postgresql-9.4-A4.pdf)
+--___________________________________________________________
+\connect :dataBase :userName
+;
+--==========================
+-- NOTA: completar em <XX>
+--==========================
+
+alter table child drop
+    constraint fk_parente;
+
+alter table client drop
+    constraint pk_client;
+
+alter table client drop
+    constraint ak_client;
+
+alter table child drop
+    constraint pk_child;
+
+alter table infantario drop
+    constraint pk_infantario;
+
+
+drop table if exists child;
+drop table if exists client;
+drop table if exists infantario;
+
+
+----------------------------------------------
+-- Criar Esquemas de Relacao
+-- (que derivem de Entidades e de Associacoes)
+----------------------------------------------
+
+create table client
+(
+    code serial NOT NULL,
+    bi int NOT NULL,
+    first_name varchar NOT NULL,
+    last_name varchar NOT NULL
+);
+
+create table child
+(
+    name varchar(255) NOT NULL,
+    birthdate date NOT NULL
+);
+
+create table infantario
+(
+    name varchar(255) NOT NULL,
+    profit float
+);
+
+---------------------------------------------
+-- Criar Atributos que derivem de Associacoes
+---------------------------------------------
+
+alter table child add parent integer;
+
+
+-------------------------------------------------
+-- Criar as Restricoes de Integridade de Entidade
+-------------------------------------------------
+
+alter table client add
+    constraint pk_client primary key (code);
+
+alter table client add
+    constraint ak_client unique (bi);
+
+alter table child add
+    constraint pk_child primary key (name, birthdate);
+
+alter table infantario add
+    constraint pk_infantario primary key (name);
+
+-------------------------------------------------
+-- Criar as Restricoes de Integridade Referencial
+-------------------------------------------------
+
+alter table child add
+    constraint fk_parente foreign key (parent) references client (code)
+    on update restrict on delete restrict;
+

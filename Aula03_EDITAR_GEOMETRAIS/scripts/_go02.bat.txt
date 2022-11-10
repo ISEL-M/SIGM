@@ -1,0 +1,1 @@
+_go 02_script_POVOAR_ESQUEMA.txt

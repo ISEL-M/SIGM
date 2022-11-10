@@ -1,0 +1,1 @@
+sh _go.sh 13_script_POSICIONAR_OBJECTO_GEOMETRICO.txt

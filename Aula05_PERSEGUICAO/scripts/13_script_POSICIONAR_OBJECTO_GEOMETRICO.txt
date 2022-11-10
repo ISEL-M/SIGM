@@ -1,0 +1,77 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis_aug_real
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+
+--__________________________________________________________________________
+-- Tabela com um qualquer objecto geometrico que se desloca com a cinematica
+--__________________________________________________________________________
+DROP VIEW IF EXISTS v_posicionar;
+DROP TABLE IF EXISTS objecto_movel;
+CREATE TABLE objecto_movel(
+--id <COMPLETAR>
+--nome <COMPLETAR>
+--id_cinematica fk1 FOREIGN KEY (id_cinematica) <COMPLETAR>
+);
+SELECT AddGeometryColumn( '', 'objecto_movel', 'geo', 3763, 'POLYGON', 2 );
+--==========================================================================
+
+
+
+--__________________________________________________________________________
+-- Tabela com um qualquer objecto geometrico que se desloca com a cinematica
+--__________________________________________________________________________
+DELETE FROM objecto_movel;
+INSERT INTO objecto_movel( id, nome, id_cinematica, geo ) VALUES (
+1,
+'my_fig',
+1,
+ST_GeomFromText( 'POLYGON( ( 0 0, 2 0, 2 1, 0 1, 0 0 ) )', 3763 )
+);
+
+
+--__________________________________________________________________________
+-- Vista com um qualquer objecto geometrico que se desloca com a cinematica
+--__________________________________________________________________________
+--CREATE VIEW v_posicionar AS
+--SELECT
+  -- om.id,
+  -- fazer translaccao de geo para para colocar o seu centroide sobre o centroide de g_posicao
+  -- i.e., ST_Translate( geo, ...
+  -- <COMPLETAR>
+--FROM objecto_movel om, cinematica c
+--WHERE om.id = c.id;
+--==============================================================================
+
+
+
+
+
+
+--================================================================
+-- Representar o ponto 0, 0 (para simplificar a leitura)
+DROP VIEW IF EXISTS v_ponto_origem;
+DROP TABLE IF EXISTS t_id;
+
+-- !para que funcione com o QuantumGIS!
+CREATE TABLE t_id( id int PRIMARY KEY );
+INSERT INTO t_id( id ) VALUES ( 0 );
+
+CREATE VIEW v_ponto_origem AS
+SELECT id, ST_GeomFromText( 'POINT( 0 0 )', 3763 ) AS ponto_origem
+FROM t_id;
+--================================================================

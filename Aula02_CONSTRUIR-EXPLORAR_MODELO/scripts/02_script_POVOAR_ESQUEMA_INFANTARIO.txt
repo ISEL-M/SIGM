@@ -1,0 +1,64 @@
+--#############
+--# Paulo Trigo
+--#############
+
+--=============
+-- Liga��o � BD
+--=============
+\set dataBase my_gis
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+-- NOTA: completar em <XX>
+--==========================
+
+delete from infantario;
+delete from child;
+delete from client;
+
+
+-- infantario
+--=============================
+INSERT INTO infantario(name, profit)
+VALUES('Fraldas', 50)
+;
+
+INSERT INTO infantario(name, profit)
+VALUES('Ursinhos', 40)
+;
+
+INSERT INTO infantario(name, profit)
+VALUES('Biberons', 40)
+;
+
+
+-- client
+--=============================
+INSERT INTO client(code, bi, first_name, last_name)
+VALUES(15, 83838383, 'Joana', 'Vilhena')
+;
+INSERT INTO client(code, bi, first_name, last_name)
+VALUES(2, 11111111, 'Pedro', 'Silva')
+;
+INSERT INTO client(code, bi, first_name, last_name)
+VALUES(333, 55555555, 'Miguel', 'Mendes')
+;
+
+
+-- child
+--=============================
+INSERT INTO child(name, birthdate, parent)
+VALUES('A', '2008-11-11', 15)
+;
+INSERT INTO child(name, birthdate, parent)
+VALUES('Aa', '2008-11-21', 15)
+;
+INSERT INTO child(name, birthdate, parent)
+VALUES('Aaa', '2008-12-11', 333)
+;
+INSERT INTO child(name, birthdate, parent)
+VALUES('Aaaa', '2001-11-11', 2)
+;

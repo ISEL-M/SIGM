@@ -1,0 +1,1 @@
+sh _go.sh  10_script_CRIAR_MODELO_PERSEGUICAO.txt

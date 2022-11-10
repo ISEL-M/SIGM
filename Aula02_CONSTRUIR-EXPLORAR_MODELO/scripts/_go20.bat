@@ -1,0 +1,1 @@
+_go 20_script_ELIMINAR_ESQUEMA_INFANTARIO.txt

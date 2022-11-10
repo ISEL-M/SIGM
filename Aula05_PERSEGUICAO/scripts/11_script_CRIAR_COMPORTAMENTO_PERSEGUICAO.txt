@@ -1,0 +1,90 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis_aug_real
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+
+-------------------------------------------------------
+-------------------------------------------------------
+-- Obter valores de 'cinematica' para uma 'perseguicao'
+-------------------------------------------------------
+-------------------------------------------------------
+DROP VIEW IF EXISTS v_novo_cinematica;
+DROP FUNCTION IF EXISTS novo_aceleracao_linear( geometry, geometry, real );
+DROP FUNCTION IF EXISTS obter_aceleracao_perseguidor( int, int, real );
+---------------------------------------------------------------------------
+
+
+--______________________________________________________________________________________________
+-- Obter a nova aceleracao linear do objecto para realizar uma perseguicao
+-- Formulacao:
+-- aceleracao = normalizar( g_posicao_alvo - g_posicao_perseguidor ) * velocidade_a_perseguir
+--______________________________________________________________________________________________
+CREATE OR REPLACE FUNCTION novo_aceleracao_linear( g_posicao_perseguidor geometry,
+                                                   g_posicao_alvo geometry,
+                                                   velocidade_a_perseguir real )
+RETURNS t_vector
+AS $$
+-- <COMPLETAR>
+$$ LANGUAGE 'sql';
+
+
+-- TESTE
+-- velocidade_a_perseguir=2
+--____________________________
+SELECT novo_aceleracao_linear( c_destino.g_posicao, c_origem.g_posicao, 2 )
+FROM cinematica c_origem, cinematica c_destino
+WHERE c_origem.id = 1 and c_destino.id = 2;
+-- resultado:
+-- (0.526234, 1.92953)
+ 
+
+
+--______________________________________________________________________________________________
+-- Obter a nova aceleracao (linear e angular) do 'id_perseguidor' a perseguir 'id_alvo'
+-- (invocar novo_aceleracao_linear e manter a aceleracao angular do 'id_alvo'
+--______________________________________________________________________________________________
+CREATE OR REPLACE FUNCTION obter_aceleracao_perseguidor( id_perseguidor int,
+                                                         id_alvo int,
+                                                         velocidade_a_perseguir real )
+RETURNS t_aceleracao
+AS $$
+SELECT novo_aceleracao_linear( c_perseguidor.g_posicao, c_alvo.g_posicao, $3 ), (c_perseguidor.aceleracao).angular
+FROM cinematica c_perseguidor, cinematica c_alvo
+WHERE c_perseguidor.id = $1 and c_alvo.id = $2;
+$$ LANGUAGE 'sql';
+
+
+-- TESTE
+-- objecto 1 persegue 2 com velocidade 4
+--______________________________________
+SELECT obter_aceleracao_perseguidor( 1, 2, 4 )
+FROM cinematica;
+-- resultado:
+-- ("(-1.05247, -3.85906)", 1)
+-- ("(-1.05247, -3.85906)", 1)
+
+
+-- Os valores anteriores foram obtidos no contexto apresentado abaixo
+--___________________________________________________________________
+SELECT id, orientacao, velocidade, aceleracao, ST_AsText( g_posicao ) as posicao
+FROM cinematica;
+-- resultado:
+-- id | orientacao |   velocidade    |  aceleracao   |    posicao
+------+------------+-----------------+---------------+---------------
+--  1 |        2.3 | ("(1.5,4)",2.3) | ("(0.5,3)",1) | POINT(6.5 10)
+--  2 |        1.3 | ("(3,1.5)",1.3) | ("(2,0.5)",1) | POINT(5 4.5)
+

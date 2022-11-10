@@ -1,0 +1,1 @@
+sh _go.sh 11_script_CRIAR_COMPORTAMENTO_PERSEGUICAO.txt
