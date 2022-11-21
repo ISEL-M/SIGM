@@ -1,0 +1,112 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+-- mais informação sobre "client_encoding" em:
+-- http://www.postgresql.org/docs/9.4/static/multibyte.html
+\encoding WIN1252
+;
+
+
+
+
+--===================
+-- Interrogar CLIENTE
+--===================
+
+-- Ponto geografico de cada cliente
+
+select codigo, st_astext(local) from cliente
+;
+
+
+-- cada uma das coordenadas (ordenadas e abcissa) do ponto geogr?fico de cada cliente
+
+select codigo, st_x(local), st_y(local) from cliente
+;
+
+
+
+
+--=====================
+-- Interrogar FREGUESIA
+--=====================
+
+-- Espaço geografico delimitado por cada freguesia
+
+select nome, st_astext(regiao) from freguesia
+;
+
+
+-- Área ocupada por cada freguesia
+
+select nome, st_area(regiao) from freguesia
+;
+
+
+
+
+--==================================
+-- Interrogar INFANTARIO e FREGUESIA
+--==================================
+
+-- Infantários (nome e geometria) de cada freguesia (nome e geometria)
+-- considerando apenas operações espaciais
+
+select
+    infantario.nome as nome_infantario,
+    st_astext(infantario.local) as local_infantario,
+    freguesia.nome as nome_freguesia,
+    st_astext(freguesia.regiao) as regiao_freguesia
+from
+    infantario
+        right outer join
+    freguesia
+        on
+    st_within(infantario.local, freguesia.regiao)
+;
+
+
+-- Distância de cada cliente a cada infantário indicando o seu nome próprio e de família
+
+select
+    cliente.nome_proprio as nome_proprio,
+    cliente.nome_familia as nome_familia,
+    infantario.nome as nome_infantario,
+    st_distance(cliente.local, infantario.local)
+from
+    cliente, infantario
+;
+
+
+-- nome do infantário e num único campo o nome próprio e de família dos clientes
+-- que vivem a uma distância superior a 20 (unidades) de algum infantário
+
+select
+        infantario.nome as nome_infantario,
+        concat(cliente.nome_proprio, ' ', cliente.nome_familia) as nome_cliente
+from
+    cliente, infantario
+where
+    cliente.codigo = any
+    (select
+        cliente.codigo
+        from cliente, infantario
+        where st_distance(cliente.local, infantario.local) > 20
+    )

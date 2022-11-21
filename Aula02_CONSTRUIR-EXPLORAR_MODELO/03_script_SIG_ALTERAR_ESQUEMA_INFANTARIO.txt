@@ -6,7 +6,7 @@
 
 
 --=============
--- Ligaï¿½ï¿½o ï¿½ BD
+-- Ligação à BD
 --=============
 \set dataBase my_gis
 ;
@@ -17,42 +17,44 @@
 --==========================
 -- NOTA: completar em <XX>
 --==========================
-drop table if exists freguesia;
-alter table client drop local;
-alter table infantario drop local;
+
+
+
 
 ----------------------------------------------
 -- Criar Esquemas de Relacao
 -- (que derivem de Entidades e de Associacoes)
 ----------------------------------------------
+
 create table freguesia (
-    name varchar,
-    region geometry(POLYGON, 0)
+    nome varchar,
+    regiao geometry(POLYGON, 0)
 );
 
----------------------------------------------
--- Criar Atributos que derivem de Associacoes
----------------------------------------------
-
-alter table client add
+alter table cliente add
     local geometry(POINT, 0);
 
 alter table infantario add
     local geometry(POINT, 0);
 
 
--------------------------------------------------
--- Criar as Restricoes de Integridade de Entidade
--------------------------------------------------
+---------------------------------------------
+-- Criar Atributos que derivem de Associacoes
+---------------------------------------------
+
+-- ...
+
 
 -------------------------------------------------
--- Criar as Restricoes de Integridade Referencial
+-- Criar as Restrições de Integridade de Entidade
 -------------------------------------------------
 
 alter table freguesia add
-    constraint pk_freguesia primary key (name);
+    constraint pk_freguesia primary key (nome);
 
 
--------------------------------
--- Criar os Atributos Espaciais
--------------------------------
+-------------------------------------------------
+-- Criar as Restrições de Integridade Referencial
+-------------------------------------------------
+
+-- ...

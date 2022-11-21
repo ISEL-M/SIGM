@@ -3,7 +3,7 @@
 --# OCT.2016
 
 --=============
--- LigaÃ§Ã£o Ã  BD
+-- Ligação à BD
 --=============
 \set dataBase my_gis
 ;
@@ -19,25 +19,7 @@
 -- NOTA: completar em <XX>
 --==========================
 
-alter table child drop
-    constraint fk_parente;
 
-alter table client drop
-    constraint pk_client;
-
-alter table client drop
-    constraint ak_client;
-
-alter table child drop
-    constraint pk_child;
-
-alter table infantario drop
-    constraint pk_infantario;
-
-
-drop table if exists child;
-drop table if exists client;
-drop table if exists infantario;
 
 
 ----------------------------------------------
@@ -45,54 +27,61 @@ drop table if exists infantario;
 -- (que derivem de Entidades e de Associacoes)
 ----------------------------------------------
 
-create table client
+create table cliente
 (
-    code serial NOT NULL,
-    bi int NOT NULL,
-    first_name varchar NOT NULL,
-    last_name varchar NOT NULL
+    codigo serial,
+    numero_bi int,
+    nome_familia varchar,
+    nome_proprio varchar
 );
 
-create table child
+create table filho
 (
-    name varchar(255) NOT NULL,
-    birthdate date NOT NULL
+    nome_proprio varchar,
+    data_nascimento date
 );
 
 create table infantario
 (
-    name varchar(255) NOT NULL,
-    profit float
+    nome varchar,
+    lucro money
 );
 
 ---------------------------------------------
 -- Criar Atributos que derivem de Associacoes
 ---------------------------------------------
 
-alter table child add parent integer;
+alter table filho add
+    parente integer;
+
+alter table cliente add
+    infantario varchar;
 
 
 -------------------------------------------------
 -- Criar as Restricoes de Integridade de Entidade
 -------------------------------------------------
 
-alter table client add
-    constraint pk_client primary key (code);
+alter table cliente add
+    constraint pk_cliente primary key (codigo);
 
-alter table client add
-    constraint ak_client unique (bi);
+alter table cliente add
+    constraint ak_cliente unique (numero_bi);
 
-alter table child add
-    constraint pk_child primary key (name, birthdate);
+alter table filho add
+    constraint pk_filho primary key (parente, nome_proprio, data_nascimento);
 
 alter table infantario add
-    constraint pk_infantario primary key (name);
+    constraint pk_infantario primary key (nome);
 
 -------------------------------------------------
 -- Criar as Restricoes de Integridade Referencial
 -------------------------------------------------
 
-alter table child add
-    constraint fk_parente foreign key (parent) references client (code)
+alter table filho add
+    constraint fk_parente foreign key (parente) references cliente (codigo)
     on update restrict on delete restrict;
 
+alter table cliente add
+    constraint fk_infantario foreign key (infantario) references infantario (nome)
+    on update restrict on delete restrict;

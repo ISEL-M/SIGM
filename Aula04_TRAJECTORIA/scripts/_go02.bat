@@ -1,1 +1,0 @@
-sh _go.sh 02_script_CRIAR_MODELO_CINEMATICA.txt

@@ -52,20 +52,25 @@ ROW( ROW( 2, 0.5 ), 1.0 )
 -- [2] Executar as linhas (A) e (B) em ciclo
 --------------------------------------------
 --------------------------------------------
--- (A)
-INSERT INTO cinematica_hist
-SELECT nextval('cinematica_hist_id_hist_seq'), id, orientacao, velocidade , aceleracao, g_posicao
-FROM cinematica;
+do $$
+begin
+   for cnt in 1..20 loop
+    -- (A)
+    INSERT INTO cinematica_hist
+    SELECT nextval('cinematica_hist_id_hist_seq'), id, orientacao, velocidade , aceleracao, g_posicao
+    FROM cinematica;
 
--- (B)
-UPDATE cinematica
-SET velocidade = novo_velocidade( velocidade, aceleracao, 1 );
+    -- (B)
+    UPDATE cinematica
+    SET velocidade = novo_velocidade( velocidade, aceleracao, cnt );
 
-UPDATE cinematica
-SET g_posicao = novo_posicao( g_posicao, velocidade, 1 );
+    UPDATE cinematica
+    SET g_posicao = novo_posicao( g_posicao, velocidade, cnt );
 
-UPDATE cinematica
-SET orientacao = novo_orientacao( orientacao, velocidade, 1 );
+    UPDATE cinematica
+    SET orientacao = novo_orientacao( orientacao, velocidade, cnt );
+   end loop;
+end; $$;
 --________________________________________________________________________________________________
 
 
@@ -78,13 +83,13 @@ DROP VIEW IF EXISTS v_trajectoria_1;
 CREATE VIEW v_trajectoria_1 AS
 SELECT *
 FROM cinematica_hist
-WHERE id = 1;
+WHERE id_cinematica = 1;
 
 DROP VIEW IF EXISTS v_trajectoria_2;
 CREATE VIEW v_trajectoria_2 AS
 SELECT *
 FROM cinematica_hist
-WHERE id = 2;
+WHERE id_cinematica = 2;
 
 
 -- ========================================

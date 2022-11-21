@@ -10,5 +10,5 @@ SET userName=postgres
 :: psql -h host -p port -d database -U user -f psqlFile
 %psqlPath%\psql -h %hostName% -p 5432 -d %dataBase% -U %userName% -f %1
 
-pause
+
 

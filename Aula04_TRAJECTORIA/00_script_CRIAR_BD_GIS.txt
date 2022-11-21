@@ -17,7 +17,7 @@
 -- Dados da Conexao
 -------------------
 \set userName postgres
-\set hostName localhost
+\set hostName 192.168.56.102
 \set portNumber 5432
 
 
@@ -61,9 +61,9 @@ CREATE DATABASE :dataBase
 
 
 \echo
-\echo "Aplicar o Extensor "postgis" ï¿½ Base de Dados" :dataBase
+\echo "Aplicar o Extensor "postgis" à Base de Dados" :dataBase
 ;
-CREATE extension postgis
+CREATE EXTENSION postgis
 ;
 
 
@@ -73,7 +73,7 @@ CREATE extension postgis
 -- \ Start \ All Programs \ PostgresSQL 9.6 \ Installation Notes \ Procedural Languagess
 
 -- \echo
--- \echo "Aplicar o Extensor "python3" ï¿½ Base de Dados" :dataBase
+-- \echo "Aplicar o Extensor "python3" à Base de Dados" :dataBase
 -- ;
 CREATE EXTENSION plpython3u
 ;

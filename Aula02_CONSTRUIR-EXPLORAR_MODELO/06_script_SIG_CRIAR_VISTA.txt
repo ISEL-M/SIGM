@@ -1,0 +1,223 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+-- mais informação sobre "client_encoding" em:
+-- http://www.postgresql.org/docs/9.4/static/multibyte.html
+\encoding WIN1252
+;
+
+drop view v_cli_frg;
+drop view v_luc_inf;
+drop view v_inf_frg;
+drop view v_dist_min;
+drop view v_dist_inf;
+drop view v_luc_m2;
+drop view v_luc_frg;
+drop view v_area_frg;
+drop view v_frg_inf;
+drop view v_dist_cli;
+drop view v_idad_fil;
+drop view v_frg_cli;
+
+
+-- clientes e a freguesia onde vivem
+create view v_frg_cli
+as select
+    cliente.codigo as codigo_cliente,
+    freguesia.nome as nome_freguesia
+from
+    cliente left outer join freguesia
+        on
+    st_within(cliente.local, freguesia.regiao)
+;
+
+select * from v_frg_cli;
+
+-- clientes e idades dos seus filhos
+create view v_idad_fil
+as select
+    filho.parente as codigo_cliente,
+    filho.nome_proprio as nome_filho,
+    extract(year from age(filho.data_nascimento)) as idade
+from
+    filho
+order by
+    idade asc
+;
+
+select * from v_idad_fil;
+
+
+-- clientes e distancia aos infantarios
+create view v_dist_cli
+as select
+    cliente.codigo as codigo_cliente,
+    st_astext(cliente.local) as local_cliente,
+    infantario.nome as nome_infantario,
+    st_astext(infantario.local) as local_infantario,
+    st_distance(cliente.local, infantario.local) as distancia
+from
+    cliente, infantario
+order by
+    distancia asc
+;
+
+select * from v_dist_cli;
+
+
+
+-- infantarios e freguesia onde estão (+ lucro)
+create view v_frg_inf
+as select
+    infantario.nome as nome_infantario,
+    st_astext(infantario.local) as local_infantario,
+    freguesia.nome as nome_freguesia,
+    infantario.lucro as lucro_infantario
+from
+    infantario left outer join freguesia
+        on
+    st_within(infantario.local, freguesia.regiao)
+order by
+    lucro_infantario desc
+;
+
+select * from v_frg_inf;
+
+
+-- area das freguesias
+create view v_area_frg
+as select
+    nome as nome_freguesia,
+    st_area(regiao) as area_freguesia
+from
+    freguesia
+order by
+    area_freguesia desc
+;
+
+select * from v_area_frg;
+
+
+-- lucro total das freguesias
+
+create view v_luc_frg
+as select
+    freguesia.nome as nome_freguesia,
+    coalesce(sum(v_frg_inf.lucro_infantario), CAST('0' as money)) as lucro_freguesia
+from
+    freguesia left outer join v_frg_inf on freguesia.nome = v_frg_inf.nome_freguesia
+group by
+    freguesia.nome
+order by
+    lucro_freguesia desc
+;
+
+select * from v_luc_frg;
+
+
+-- lucro por m2 das freguesias
+create view v_luc_m2
+as select
+    v_luc_frg.nome_freguesia as nome_freguesia,
+    v_luc_frg.lucro_freguesia / v_area_frg.area_freguesia as lucro_m2
+from
+    v_luc_frg left outer join v_area_frg on v_luc_frg.nome_freguesia = v_area_frg.nome_freguesia;
+
+select * from v_luc_m2;
+
+
+-- clientes que vivem numa freguesia mas estão mais perto de algum infantário de outra freguesia (diferente daquela onde vivem).
+
+create view v_dist_inf
+as select 
+    v_dist_cli.codigo_cliente,
+    v_frg_cli.nome_freguesia as freguesia_cliente,
+    v_dist_cli.nome_infantario,
+    v_frg_inf.nome_freguesia as freguesia_infantario,
+    v_dist_cli.distancia
+from
+    v_dist_cli join v_frg_inf on v_dist_cli.nome_infantario = v_frg_inf.nome_infantario
+            join v_frg_cli on v_dist_cli.codigo_cliente = v_frg_cli.codigo_cliente;
+
+select * from v_dist_inf;
+
+create view v_dist_min
+as select
+    v_dist_inf.codigo_cliente,
+    min(distancia) as dist_minima
+from
+    v_dist_inf
+where
+    freguesia_cliente = freguesia_infantario
+group by
+    v_dist_inf.codigo_cliente;
+
+select * from v_dist_min;
+
+create view v_inf_frg
+as select
+    v_dist_inf.codigo_cliente,
+    v_dist_inf.freguesia_cliente,
+    v_dist_inf.nome_infantario,
+    v_dist_inf.freguesia_infantario,
+    v_dist_inf.distancia
+from
+    v_dist_inf full join v_dist_min on v_dist_inf.codigo_cliente = v_dist_min.codigo_cliente
+where
+    freguesia_cliente != freguesia_infantario and (v_dist_min.dist_minima is null or v_dist_inf.distancia < v_dist_min.dist_minima)
+;
+
+select * from v_inf_frg;
+
+-- clientes com filhos em idade escolar que residem até 100m dos infantários da freguesia mais lucrativa
+
+create view v_luc_inf
+as select
+    v_frg_inf.nome_infantario,
+    v_luc_m2.nome_freguesia,
+    v_luc_m2.lucro_m2
+from
+    v_frg_inf left outer join v_luc_m2 on v_luc_m2.nome_freguesia = v_frg_inf.nome_freguesia
+;
+select * from v_luc_inf;
+--where lucro_m2 in (select max(lucro_m2) from v_luc_inf);
+
+
+create view v_cli_frg( codigo_cliente, nome_infantario, nome_freguesia_residencia, nome_freguesia_infantario, g_local_cliente )
+as select distinct
+    v_idad_fil.codigo_cliente,
+    v_dist_cli.nome_infantario,
+    v_frg_cli.nome_freguesia,
+    v_luc_inf.nome_freguesia,
+    v_dist_cli.local_cliente
+from
+    v_dist_cli full join v_frg_cli on v_frg_cli.codigo_cliente = v_dist_cli.codigo_cliente
+               full join v_idad_fil on v_idad_fil.codigo_cliente = v_dist_cli.codigo_cliente
+               full join v_luc_inf on v_luc_inf.nome_infantario = v_dist_cli.nome_infantario
+where
+    v_idad_fil.idade between 3 and 6
+    and v_dist_cli.distancia <= 100
+    and v_dist_cli.nome_infantario in (select nome_infantario from v_luc_inf where lucro_m2 in (select max(lucro_m2) from v_luc_inf))
+;
+
+
+select *
+from v_cli_frg
+;

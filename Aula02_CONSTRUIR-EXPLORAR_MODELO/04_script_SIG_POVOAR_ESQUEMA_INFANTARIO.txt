@@ -1,0 +1,47 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+
+--=============
+-- Ligação à BD
+--=============
+\set dataBase my_gis
+;
+\set userName postgres
+;
+\connect :dataBase :userName
+;
+--==========================
+--==========================
+
+
+
+
+--================
+-- Actualizar <ER>
+--================
+
+update cliente set local=ST_GeomFromText('POINT(10 20)') WHERE codigo=15;
+update cliente set local=ST_GeomFromText('POINT(30 20)') WHERE codigo=2;
+update cliente set local=ST_GeomFromText('POINT(30 40)') WHERE codigo=333;
+
+update infantario set local=ST_GeomFromText('POINT(40 10)') where nome='Fraldas';
+update infantario set local=ST_GeomFromText('POINT(20 30)') where nome='Ursinho';
+update infantario set local=ST_GeomFromText('POINT(35 35)') where nome='Boneca';
+
+
+--============
+-- Povoar <ER>
+--============
+
+insert into freguesia (nome, regiao) values
+    ('Lumiar', ST_GeomFromText('POLYGON((10.00 10.00, 10.00 40.00, 20.00 30.00, 10.00 10.00))'));
+insert into freguesia (nome, regiao) values
+    ('Marvila', ST_GeomFromText('POLYGON((10.00 40.00, 15.00 50.00, 40.00 40.00, 25.00 30.00, 10.00 40.00))'));
+insert into freguesia (nome, regiao) values
+    ('Benfica', ST_GeomFromText('POLYGON((15.00 15.00, 45.00 5.00, 40.00 40.00, 25.00 30.00, 15.00 15.00))'));
+
+update freguesia set regiao=ST_GeomFromText('POLYGON((9.00 9.00, 10.00 40.00, 25.00 30.00, 15.00 15.00, 9.00 9.00))') where nome='Lumiar';
