@@ -1,0 +1,52 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+--
+-- a instrucoes contidas neste ficheiro devem ser executadas numa "Command Prompt"
+-- e.g., copiando as instrucoes ou construindo uma .bat
+--
+-- estas instrucoes assumem que o "path" corrente contem a pasta "scripts"
+--
+-- assume também que a aplicacao raster2pgsql.exe está em:
+--   C:\myApp\PostgreSQL\9.6\bin
+--   (deve ajustar este "path" de acordo com a sua instalacao)
+--
+
+
+--
+-- comando raster2pgsql
+--
+-- para obter as opcoes disponiveis
+C:\myApp\PostgreSQL\10\bin\raster2pgsql.exe -?
+
+
+-- documentacao sobre o comando raster2pgsql
+-- http://postgis.net/docs/using_raster_dataman.html
+-- C:\myApp\PostgreSQL\10\bin\raster2pgsql raster_options_go_here raster_file someschema.sometable > out.sql
+
+
+-- povoar com o raster_ilhaDasFlores_1.tif
+C:\myApp\PostgreSQL\10\bin\raster2pgsql -s 4236 -I -d -M .\raster_ilhaDasFlores_1.tif T_RASTER > out_raster.txt
+type .\scripts\_script_CONNECT_INIT_BD.txt out_raster.txt > .\scripts\01_script_POVOAR_T_RASTER.txt
+
+cd .\scripts
+_go01.bat
+cd ..
+
+
+-- povoar com o raster_ilhaDasFlores_2.tif
+-- nesta execucao nao se usa a opcao "-d" (para nao se fazer "drop" 'a tabela que suporta o raster)
+-- nesta execucao usa-se a opcao "-a" (para fazer "append" a uma tabela ja' existente)
+-- nesta execucao tambem nao se usa a opcao "-I" pois o indice ja' foi construido
+C:\myApp\PostgreSQL\10\bin\raster2pgsql -s 4236 -a -M .\raster_ilhaDasFlores_2.tif T_RASTER > out_raster.txt
+type .\scripts\_script_CONNECT_INIT_BD.txt out_raster.txt > .\scripts\01_script_POVOAR_T_RASTER.txt
+
+cd .\scripts
+_go01.bat
+cd ..
+
+
+

@@ -1,0 +1,127 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+--
+-- diretivas SQL
+--
+-- diretivas descritas em:
+-- http://postgis.net/docs/RT_reference.html
+--
+
+
+
+-- obter um "sumario" sobre o conteudo de cada "raster"
+SELECT rid, ST_Summary( rast )
+FROM T_RASTER
+;
+-- 1; "Raster of 6401x4001 pixels has 1 band and extent of BOX(647375.43574513 4367932.42389284,663377.93574513 4377934.92389284)
+    band 1 of pixtype 8BUI is in-db with no NODATA value"
+-- 2; "Raster of 6401x4001 pixels has 1 band and extent of BOX(647375.430627373 4357932.31898779,663377.930627373 4367934.81898779)
+    band 1 of pixtype 8BUI is in-db with no NODATA value"
+
+
+
+-- numero de bandas de cada raster
+SELECT rid, ST_NumBands( rast )
+FROM T_RASTER
+;
+-- 1; 1
+-- 2; 1
+
+
+
+-- altura e largura (em pixels) de cada raster
+SELECT rid, ST_Height( rast ) AS rastHeight, ST_Width( rast ) AS rastWidth
+FROM T_RASTER
+;
+-- 1; 4001; 6401
+-- 2; 4001; 6401
+
+
+
+-- altura e largura de cada pixel em metros (de acordo com o sistema de coordenadas considerado)
+SELECT rid, ST_PixelHeight( rast ) AS pixelHeight, ST_PixelWidth( rast ) AS pixelWidth
+FROM T_RASTER
+;
+-- 1; 2.5; 2.5
+-- 2; 2.5; 2.5
+
+
+
+-- altura e largura total, em metros, representada (ou coberta) nos "raster"
+SELECT SUM( H ) AS H, SUM ( W ) AS W
+FROM (
+   SELECT
+      rid,
+      ST_Height( rast ) * ST_PixelHeight( rast ),
+      ST_Width( rast ) * ST_PixelWidth( rast )
+   FROM T_RASTER
+   ) AS T_aux( rid, H, W )
+;
+-- 1; 20005; 32005
+
+
+-- detalhe adicional sobre a orientacao de cada pixel (skew)
+-- mais informacao em:
+-- http://postgis.net/docs/RT_ST_PixelWidth.html
+-- http://en.wikipedia.org/wiki/World_file
+SELECT
+   rid,
+   ST_Width( rast ) As rastWidth, ST_PixelWidth( rast ) As pixWidth,
+   ST_ScaleX( rast ) As scaleX, ST_ScaleY( rast ) As scaleY,
+   ST_SkewX( rast ) As skewX, ST_SkewY( rast ) As skewY
+FROM T_RASTER
+;
+-- 1; 6401; 2.5; 2.5; -2.5; 0; 0
+-- 2; 6401; 2.5; 2.5; -2.5; 0; 0
+
+
+
+-- valor de pixel de determinada coordenada
+-- info em:
+-- http://postgis.net/docs/RT_ST_Value.html
+-- ST_Value:
+-- Returns the value of a given band in a given columnx, rowy pixel or at a given geometry point.
+-- Band numbers start at 1 and band is assumed to be 1 if not specified.
+-- If exclude_nodata_value is set to true, then only non nodata pixels are considered.
+-- If exclude_nodata_value is set to false, then all pixels are considered.
+--
+-- usar o "Coordinate Capture" do QuantumGIS para obter uma coordenada do espaco definido no "raster"
+--
+SELECT
+   rid,
+   ST_Value( rast, 1, T_aux.geo ) As band1_pixel_geo
+FROM T_RASTER
+   CROSS JOIN
+   ( SELECT ST_SetSRID( ST_Point( 652783.58, 4366830.53 ), 4236 ) As geo ) As T_aux
+;
+-- 1;
+-- 2; 197
+
+
+
+-- valor de pixel de determinada coordenada, e
+-- valor de pixel indexado diretamente sobre o "raster" ("bitmap")
+SELECT
+   rid,
+   ST_Value( rast, 1, T_aux.geo ) As band1_pixel_geo,
+   ST_Value( rast, 1, 5, ST_Height( rast ) ) As band1_pixel_5_Height
+FROM T_RASTER
+   CROSS JOIN
+   ( SELECT ST_SetSRID( ST_Point( 652783.58, 4366830.53 ), 4236 ) As geo ) As T_aux
+;
+-- 1; ; 230
+-- 2; 197; 128
+
+
+
+-- coordenadas do canto superior esquerdo (do "raster") expressas no sistema de coordenadas
+-- Returns the upper left corner as column and row given geometric X and Y (longitude and latitude)
+-- or a point geometry expressed in the spatial reference coordinate system of the raster.
+SELECT rid, ( ST_RasterToWorldCoord( rast, 1, 1 ) ).*
+FROM T_RASTER
+;
+

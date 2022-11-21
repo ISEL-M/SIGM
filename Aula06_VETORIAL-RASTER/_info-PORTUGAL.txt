@@ -1,0 +1,7 @@
+SNIG - vetorial de Portugal
+
+WGS84 - sistema de coordenadas mais consensual devido essencialmente ao GPS
+
+transCoord - transformação de coordenadas nacionais
+
+IGEOE - 

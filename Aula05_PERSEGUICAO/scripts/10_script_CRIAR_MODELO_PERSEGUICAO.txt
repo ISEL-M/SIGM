@@ -4,7 +4,7 @@
 
 
 --=============
--- Ligaï¿½ï¿½o ï¿½ BD
+-- Ligação à BD
 --=============
 \set dataBase my_gis_aug_real
 ;
@@ -24,17 +24,26 @@
 DROP TABLE IF EXISTS pp CASCADE;
 ----------------------------------------------------
 
+SELECT *
+FROM cinematica;
 
 
 ----------------------------------------------------
 
 -- Suporte 'a nocao de perseguicao
-CREATE TABLE pp(
--- <COMPLETAR>
+CREATE TABLE pp (
+    id_perseguidor int,
+    id_alvo int
 );
--- <COMPLETAR>
 
-     
+ALTER TABLE pp ADD CONSTRAINT pk_pp
+    PRIMARY KEY (id_perseguidor, id_alvo);
+
+ALTER TABLE pp ADD CONSTRAINT fk_perseguidor
+    FOREIGN KEY (id_perseguidor) REFERENCES CINEMATICA(id);
+ALTER TABLE pp ADD CONSTRAINT fk_alvo
+    FOREIGN KEY (id_alvo) REFERENCES CINEMATICA(id);
+
 
 ---------------------------------------------------
 ---------------------------------------------------
@@ -47,4 +56,7 @@ VALUES( 1, 2 );
 
 SELECT *
 FROM pp;
+
+SELECT *
+FROM v_cinematica_1;
 

@@ -38,9 +38,8 @@ CREATE OR REPLACE FUNCTION novo_aceleracao_linear( g_posicao_perseguidor geometr
                                                    velocidade_a_perseguir real )
 RETURNS t_vector
 AS $$
--- <COMPLETAR>
+SELECT normalizar( (ST_x($2) - ST_x($1), ST_y($2) - ST_y($1))::t_vector ) * $3
 $$ LANGUAGE 'sql';
-
 
 -- TESTE
 -- velocidade_a_perseguir=2

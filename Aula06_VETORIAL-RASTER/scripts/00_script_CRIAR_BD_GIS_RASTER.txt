@@ -1,0 +1,59 @@
+--#############
+--# Paulo Trigo
+--#############
+
+
+
+-------------------
+-- Dados da Conexao
+-------------------
+\set userName postgres
+\set hostName localhost
+\set portNumber 5432
+
+
+-------------
+-- Nome da BD
+-------------
+\set dataBase my_gis_raster
+;
+
+-------------------------
+-- Remover e Criar BD GIS
+-------------------------
+\echo
+\echo "Remover Base de Dados" :dataBase
+;
+DROP DATABASE IF EXISTS :dataBase
+;
+
+
+\echo
+\echo "Criar Base de Dados" :dataBase
+;
+CREATE DATABASE :dataBase
+;
+
+
+\echo
+\echo "Estabelecer Conexao com a Base de Dados" :dataBase
+;
+\c :dataBase :userName :hostName :portNumber
+;
+
+
+\echo
+\echo "Aplicar o Extensor "postgis" � Base de Dados" :dataBase
+;
+CREATE EXTENSION postgis
+;
+
+
+-- nao e' preciso usar o python, no entanto podemos manter essa alternativa disponivel
+\echo
+\echo "Aplicar o Extensor "python3" � Base de Dados" :dataBase
+;
+
+CREATE EXTENSION plpython3u
+;
+select * from pg_language;

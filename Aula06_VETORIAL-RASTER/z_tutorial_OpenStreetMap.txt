@@ -1,0 +1,2 @@
+-- tutorial sobre ligacao entre OpenStreeMap e PostGIS:
+-- http://learnosm.org/en/osm-data/osm2pgsql/

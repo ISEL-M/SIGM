@@ -1,0 +1,38 @@
+--#############
+--# Paulo Trigo
+--#############
+
+--
+-- a instrucoes contidas neste ficheiro devem ser executadas numa "Command Prompt"
+-- e.g., copiando as instrucoes ou construindo uma .bat
+--
+-- estas instrucoes assumem que o "path" corrente contém a pasta "osm2pgsq"
+-- (essa e' a pasta criada depois de descompactar a aplicacao em "osm2pgsql.zip")
+
+
+
+--
+-- aplicacao osm2pgsql
+--
+-- para obter as opcoes disponiveis
+-- OLD -- .\osm2pgsql\Win32\osm2pgsql -h
+.\osm2pgsql-bin\osm2pgsql -h
+
+
+
+-- para executar a aplicacao "osm2pgsql" e' necessario fornecer os seguinte informacao:
+--  localizacao do ficheiro OSM
+--  nome da base de dados, utilizador e password
+--  o ficheiro "style" que define quais as "tag" OSM a importar para a base de dados
+--  (vamos usar o "style" de omissao disponivel em ".\default.style")
+
+
+-- na "Command Prompt" afetar variavel de ambiente "pgpassword" com a password de acesso ao PostgreSQL
+set pgpassword=A-SUA-PASSWORD
+
+
+-- executar para carregar a cidade de lisboa (lisbon.osm.pbf) na base de dados
+-- notar que a opcao "-C" remove toda a informacao do "raster"
+-- pelo que pode executar varias vezes que tera' sempre o mesmo resultado
+-- OLD -- .\osm2pgsql\Win32\osm2pgsql -c -d my_gis_raster -U postgres -H localhost -S .\default.style .\lisbon_portugal.osm.pbf
+.\osm2pgsql-bin\osm2pgsql -c -d my_gis_raster -U postgres -H localhost -S .\default.style .\lisbon_portugal.osm.pbf

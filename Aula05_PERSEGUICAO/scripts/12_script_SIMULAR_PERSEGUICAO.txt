@@ -21,10 +21,10 @@
 ----------------------------
 -- Simulacao de perseguicao:
 -- [1] Iniciacao dos dados
+
 ----------------------------
 ----------------------------
--- no caso de ja ter construido objecto_movel sera' preciso fazer:
--- DELETE FROM objecto_movel;
+DELETE FROM objecto_movel;
 DELETE FROM pp;
 DELETE FROM cinematica_hist;
 DELETE FROM cinematica;
@@ -61,35 +61,40 @@ VALUES( 1, 2 );
 --------------------------------------------
 -- Simulacao de perseguicao:
 -- [2] Executar as linhas (A) e (B) em ciclo
--- (e.g., OBJECTo com id=1 atras de id=2 
+-- (e.g., OBJECTO com id=1 atras de id=2
 --  com velocidade-de-perseguicao=0.2)
 --------------------------------------------
 --------------------------------------------
--- (A)
-INSERT INTO cinematica_hist
-SELECT nextval('cinematica_hist_id_hist_seq'), id, orientacao, velocidade , aceleracao, g_posicao
-FROM cinematica;
+do $$
+begin
+   for cnt in 1..100 loop
+        -- (A)
+        INSERT INTO cinematica_hist
+        SELECT nextval('cinematica_hist_id_hist_seq'), id, orientacao, velocidade , aceleracao, g_posicao
+        FROM cinematica;
 
--- (B)
-UPDATE cinematica
-SET aceleracao = obter_aceleracao_perseguidor( pp.id_perseguidor, pp.id_alvo, 0.2 )
-FROM pp
-WHERE id = pp.id_perseguidor;;
+        -- (B)
+        UPDATE cinematica
+        SET aceleracao = obter_aceleracao_perseguidor( pp.id_perseguidor, pp.id_alvo, 0.2 )
+        FROM pp
+        WHERE id = pp.id_perseguidor;
 
-UPDATE cinematica
-SET velocidade = novo_velocidade( velocidade, aceleracao, 1 )
-FROM pp
-WHERE id = pp.id_perseguidor;
+        UPDATE cinematica
+        SET velocidade = novo_velocidade( velocidade, aceleracao, cnt )
+        FROM pp
+        WHERE id = pp.id_perseguidor;
 
-UPDATE cinematica
-SET g_posicao = novo_posicao( g_posicao, velocidade, 1 )
-FROM pp
-WHERE id = pp.id_perseguidor;
+        UPDATE cinematica
+        SET g_posicao = novo_posicao( g_posicao, velocidade, cnt )
+        FROM pp
+        WHERE id = pp.id_perseguidor;
 
-UPDATE cinematica
-SET orientacao = novo_orientacao( orientacao, velocidade, 1 )
-FROM pp
-WHERE id = pp.id_perseguidor;
+        UPDATE cinematica
+        SET orientacao = novo_orientacao( orientacao, velocidade, cnt )
+        FROM pp
+        WHERE id = pp.id_perseguidor;
+   end loop;
+end; $$;
 --________________________________________________________________________________________________
 
 
