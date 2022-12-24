@@ -1,0 +1,58 @@
+================================================================================
+:: Paulo Trigo Silva (PTS)
+- get data
+- shp2pgsql
+- load data
+================================================================================
+(1) get GIS vector data
+(2) install "shp2pgsql" command line tool into Docker
+(3) load "shape file" into PostGIS database
+(4) check loaded data
+
+
+
+________________________________________________________________________________
+(1) get GIS vector data
+(info) cf., https://access.crunchydata.com/documentation/pg_tileserv/latest/examples/
+
+(download) GIS vector data from NaturalEarthData
+goto: https://www.naturalearthdata.com/downloads/50m-cultural-vectors/
+select: <Admin 0 - Countries> \ <Download countries>
+
+or-use:
+- the provided "ne_50m_admin_0_countries.zip" (and uncompress it)
+
+
+
+________________________________________________________________________________
+(2) install "shp2pgsql" command line tool into Docker
+(info) https://github.com/jjrom/shp2pgsql
+
+(execute) "shp2pgsql" ("shape to pgsql") based on "mdillon/postgis":
+$ docker pull jjrom/shp2pgsql
+$ docker images
+
+
+
+________________________________________________________________________________
+(3) load "shape file" into PostGIS database
+
+(execute) from the shape-file generate a SQL file:
+$ docker run -v /full-path-to-folder/ne_50m_admin_0_countries/:/shp_data jjrom/shp2pgsql -D -s 4326 /shp_data/ne_50m_admin_0_countries.shp > ./natural_earth.txt
+
+(execute) load the "./natural_earth.txt" SQL file into PostGIS:
+$ cat ./natural_earth.txt | docker exec -i docker_postgis psql -U postgres -d my_gis
+
+
+
+________________________________________________________________________________
+(4) check loaded data
+
+(info) use pgAdmin to check all data at table "ne_50m_admin_0_countries"
+
+(execute) another check; open a bash inside the container and execute "psql"
+$ docker exec -it docker_postgis bash
+$ psql -U postgres -d my_gis
+$ SELECT formal_en, name_pt, pop_est FROM ne_50m_admin_0_countries;
+$ exit
+$ exit

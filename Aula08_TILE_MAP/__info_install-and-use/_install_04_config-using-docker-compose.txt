@@ -1,0 +1,30 @@
+================================================================================
+:: Paulo Trigo Silva (PTS)
+- use docker-compose
+================================================================================
+(1) stop previously launched containers (micro-services)
+(2) launch all previous containers using "docker-compose"
+
+
+
+________________________________________________________________________________
+(1) stop previously launched containers (micro-services)
+(info) cf., https://docs.docker.com/engine/reference/commandline
+(info) cf., https://typeofnan.dev/how-to-stop-all-docker-containers/
+
+(execute) open a command prompt and execute:
+$ docker stop $(docker ps -q)
+
+
+
+________________________________________________________________________________
+(2) launch all containers with "docker-compose"
+(info) cf., https://docs.docker.com/compose/gettingstarted/
+
+(execute) from the folder with the "docker-compose.yml" file execute:
+$ docker-compose up -d
+$ docker-compose ps
+
+(info) if you get an error such as "port is already allocated",
+(info) then, check that step (1) was properly executed
+

@@ -1,0 +1,35 @@
+================================================================================
+:: Paulo Trigo Silva (PTS)
+- pg_tileserv
+================================================================================
+(1) install pg_tileserv into Docker 
+(2) launch and use pg_tileserv
+
+
+
+________________________________________________________________________________
+(1) install pg_tileserv into Docker 
+
+(info) on "pg_tileserv" for Docker
+- https://hub.docker.com/r/pramsey/pg_tileserv/
+
+(execute) open a command prompt and execute:
+$ docker pull pramsey/pg_tileserv
+
+
+
+________________________________________________________________________________
+(2) launch and use pg_tileserv
+
+:: the executable will read user/connection information from the DATABASE_URL, and
+:: connect to database, expose functions and tables the user has read/execute permissions
+
+(info) the format of DATABASE_URL (in the command below) is:
+(info) [protocol]://[username]:[password]@[hostname]:[port]/[database]
+
+(execute) create and launch container (micro-service) - pg_tileserv
+$ docker run -dt --name docker_pg_tileserv -e DATABASE_URL=postgresql://postgres:postgres@docker_postgis/my_gis --network=my_docker_network --publish 7800:7800 pramsey/pg_tileserv
+
+(info) after start-up you can connect to the server and explore the published tables and functions in the database
+:: point a Browser to:
+http://localhost:7800

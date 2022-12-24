@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <meta charset='utf-8' />
+ <title>Map-Tiles in MapLibre GL JS</title>
+ <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+ <script src='https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js'></script>
+ <link href='https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css' rel='stylesheet' />
+ <style> body { margin:0; padding:0; }
+         #map { position:absolute; top:0; bottom:0; width:100%; } </style>
+</head>
+<body>
+
+<div id='map'></div>
+<script>
+ //___
+ // vector tile server URL and tile source layer
+ var vector_server = "http://localhost:8080/";
+ var vector_source_layer = "public.ne_50m_admin_0_countries";
+
+ // data table has many columns, we retrieve just three
+ // IMPORTANT: there can be NO spaces between the column names (just a comma)
+ var url_QUERY = "?"
+ var url_SEP = "&"
+ var geom_column = "geom_column=geom"
+ var srid = "srid=4326"
+ var properties = "properties=formal_en, name_pt, pop_est"
+
+ // complete url of service to be provided by the vector tile server
+ var vector_url = vector_server + vector_source_layer + "/" + "{z}/{x}/{y}.pbf" + url_QUERY + geom_column + url_SEP + srid + url_SEP + properties;
+ // var vector_url = vector_server + "{z}/{x}/{y}.pbf";
+
+ // IMPORTANT: eliminate all white-spaces from vector_url
+ vector_url = vector_url.replace(/\s+/g, '')
+
+
+ //___
+ // utility variable (values used more than once!)
+ var line_color = 'blue';
+ var id_layer = 'id-layer';
+ var id_layer_outline = id_layer + '-outline';
+ var id_layer_fill = id_layer + '-fill';
+
+ //___
+ // config map using MapLibreGL
+ var map = new maplibregl.Map({
+  'container': 'map',
+  'zoom': 2,
+  'center': [-9.142685, 38.736946], // Lisbon
+  'style': {
+   'version': 8,
+
+   'sources': {
+    <your-code-here>,
+
+    'source-from-web': {
+     'type': 'raster',
+     'tiles': ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"] }
+   },
+
+   'layers': [
+              { 'id': 'source-from-web-layer',
+                'type': 'raster',
+                'source': 'source-from-web',
+                'minzoom': 0, 'maxzoom': 22 },
+
+              <your-code-here>
+   ] } });
+
+
+ //___
+ // utility to convert feature properties into html
+ function featureHTML(f) {
+  var h = "";
+  var p = f.properties;
+  for (var k in p) {
+   h += "<b>" + k + ":</b> " + p[k] + "<br/>";
+  }
+  return "<p>" + h + "</p>";
+ };
+
+ // when click event occurs on a feature in layer:
+ // - open a popup at the location of the click
+ // - show description HTML from its properties
+ map.on('click', id_layer_fill, function(e) {
+  new maplibregl
+      .Popup()
+      .setLngLat(e.lngLat)
+      .setHTML(featureHTML(e.features[0]))
+      .addTo(map);
+ });
+
+ // change cursor to a pointer when mouse is over the layer
+ map.on('mouseenter', id_layer_fill, function() {
+  map.getCanvas().style.cursor = 'pointer';
+ });
+
+ // change cursor back to pointer when it leaves the layer
+ map.on('mouseleave', id_layer_fill, function() {
+  map.getCanvas().style.cursor = '';
+ });
+
+</script>
+</body>
+</html>

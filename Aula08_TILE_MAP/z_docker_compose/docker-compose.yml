@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  docker_pg_tileserv:
+    image: pramsey/pg_tileserv
+    ports:
+      - "7800:7800"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: my_gis
+      DATABASE_URL: postgresql://postgres:postgres@docker_postgis/my_gis
+    networks:
+      - my_docker_network
+    restart: unless-stopped
+
+  docker_postgis:
+    image: postgis/postgis
+    hostname: postgis
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: PTS_POSTGIS_TEST
+    volumes:
+      - volume_postgis:/var/lib/postgis/data
+    networks:
+      - my_docker_network
+    restart: unless-stopped
+
+  docker_pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - docker_postgis
+    hostname: pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ptrigo.silva@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    volumes:
+      - volume_pgadmin:/var/lib/pgadmin
+    networks:
+      - my_docker_network
+    restart: unless-stopped
+
+networks: 
+  my_docker_network:
+    driver: bridge
+
+volumes: 
+  volume_postgis:
+  volume_pgadmin:
